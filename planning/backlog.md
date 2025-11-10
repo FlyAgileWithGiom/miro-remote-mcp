@@ -123,9 +123,12 @@
 
 ## In Progress
 
-- [⏳] **FEAT1**: User places items directly in frames (vs manual move after creation)
-  - See [user-stories.md](./user-stories.md) for details
-  - **Target outcome**: Hierarchical boards created in single Claude conversation
+## Recently Completed (2025-11-10)
+
+- [✅] **FEAT1**: User places items directly in frames (vs manual move after creation) ✅ 2025-11-10
+  - Added optional parent_id parameter to create_sticky_note, create_shape, create_text
+  - Items can be created directly inside frames
+  - **Outcome achieved**: Hierarchical boards created in single Claude conversation
 
 ## Planned
 
