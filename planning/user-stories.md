@@ -1,5 +1,33 @@
 # planning/user-stories.md
 
+### CAP-SCALEWAY-DEPLOY: User accesses Miro MCP from any Claude client (not just local Desktop)
+
+**User**: Claude user on web, mobile, or any MCP-compatible client needing Miro integration
+**Outcome**: Miro board operations available through HTTP endpoint from any device/platform
+**Context**: Currently Miro MCP only works with Claude Desktop via StdIO transport, limiting access to single local machine with proper config
+
+**Acceptance Criteria**:
+- Scaleway Functions handler wraps existing Miro tools as HTTP endpoints
+- All 14 MCP tools accessible via HTTP (list_boards, create_sticky_note, etc.)
+- OAuth credentials passed via environment variables (not local filesystem)
+- Private function with X-Auth-Token authentication
+- Deployment script automates packaging and upload to Scaleway
+- Health endpoint confirms function is operational
+- Request/response format compatible with MCP-over-HTTP clients
+- Documentation includes deployment guide and client configuration
+
+**Implementation Notes**:
+- Pattern based on successful mcp-gdrive Scaleway deployment
+- Handler file: src/functions-handler.ts (similar to mcp-gdrive pattern)
+- Deployment script: deploy-scaleway-functions.sh
+- OAuth tokens from base64-encoded environment variable
+- Scale to zero when not used (cost-effective)
+- 30s timeout sufficient for Miro API operations
+
+**Source**: USER_REQUEST - enable remote access to Miro MCP
+
+---
+
 ### FEAT1: User places items directly in frames (vs manual move after creation)
 
 **User**: Claude Desktop user creating Miro visualizations through MCP tools

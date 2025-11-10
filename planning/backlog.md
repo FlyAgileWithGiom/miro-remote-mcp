@@ -123,6 +123,8 @@
 
 ## In Progress
 
+- [⏳] **CAP-SCALEWAY-DEPLOY**: User accesses Miro MCP from any Claude client (not just local Desktop)
+
 ## Recently Completed (2025-11-10)
 
 - [✅] **FEAT1**: User places items directly in frames (vs manual move after creation) ✅ 2025-11-10
