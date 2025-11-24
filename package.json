@@ -11,8 +11,10 @@
     "start": "node dist/index.js",
     "start:http": "node dist/local-server.js",
     "type-check": "tsc --noEmit",
-    "test": "tsx src/test-api.ts",
-    "test:integration": "tsx src/test-mcp.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:api": "tsx src/test-api.ts",
+    "test:mcp": "tsx src/test-mcp.ts",
     "oauth": "tsx src/oauth-helper.ts",
     "deploy:scaleway": "./deploy-scaleway-functions.sh"
   },
@@ -35,6 +37,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.0"
   }
 }
