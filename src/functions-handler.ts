@@ -62,18 +62,12 @@ function apiResponse(statusCode: number, body: unknown): ApiResponse {
 const TOKEN_FILE = process.env.TOKEN_FILE || '/data/tokens.json';
 
 /**
- * Gateway URL (shared across MCPs in docker-compose)
- * Example: https://gateway.example.com
+ * External base URI for this MCP (used for OAuth callback)
+ * Example: https://gateway.example.com/mcp/miro
  */
-const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:3000';
+const BASE_URI = process.env.BASE_URI || 'http://localhost:3000';
 
-/**
- * MCP mount path (specific to this MCP)
- * Example: /mcp/miro
- */
-const MCP_PATH = process.env.MCP_PATH || '';
-
-const OAUTH_REDIRECT_URI = `${GATEWAY_URL}${MCP_PATH}/oauth/callback`;
+const OAUTH_REDIRECT_URI = `${BASE_URI}/oauth/callback`;
 
 /**
  * Initialize OAuth - tries token file first, falls back to env vars
