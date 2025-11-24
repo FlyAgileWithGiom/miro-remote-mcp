@@ -160,7 +160,9 @@ class MiroFunctionHandler {
 
     // Health check
     if (path === '/health' && httpMethod === 'GET') {
-      const isAuth = this.miroClient ? await this.miroClient.verifyAuth() : false;
+      // Check if tokens exist (without making API call)
+      const hasTokens = existsSync(TOKEN_FILE);
+      const isAuth = hasTokens || (this.miroClient ? await this.miroClient.verifyAuth() : false);
       return apiResponse(200, {
         status: 'ok',
         service: 'miro-mcp',

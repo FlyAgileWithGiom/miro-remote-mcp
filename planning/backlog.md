@@ -4,238 +4,87 @@
 
 ### Core Capabilities (2025-11-10 - Initial Implementation)
 
-- [✅] **CAP-BOARD-OPS**: User manages Miro boards through Claude
-  - List all accessible boards
-  - Get board details
-  - Create new boards with name and description
-  - **Outcome**: Board management without leaving Claude conversation
-
-- [✅] **CAP-ITEM-READ**: User discovers board content programmatically
-  - List all items on a board
-  - Filter items by type (frame, sticky_note, shape, text, connector)
-  - Get detailed item properties
-  - **Outcome**: Board content queryable through natural language
-
-- [✅] **CAP-ITEM-MODIFY**: User updates existing board elements
-  - Update item position, content, style
-  - Delete items
-  - **Outcome**: Board refinement through conversation (vs manual clicks)
-
-- [✅] **CAP-STICKY-CREATION**: User creates sticky notes with full styling control
-  - Custom content (HTML)
-  - Positioning (x, y coordinates)
-  - Sizing (width, height)
-  - 15 color options (light_yellow, yellow, orange, green, blue, pink, etc.)
-  - Shape variants (square, rectangle)
-  - **Outcome**: Sticky notes placed and styled in single Claude request
-
-- [✅] **CAP-SHAPE-CREATION**: User creates geometric shapes and flowchart symbols
-  - 20+ shape types (rectangle, circle, triangle, arrows, flowchart symbols)
-  - Custom fill and border colors
-  - Border width control
-  - **Outcome**: Diagrams created through natural language descriptions
-
-- [✅] **CAP-TEXT-CREATION**: User adds text labels and annotations
-  - HTML content support
-  - Positioning and width control
-  - **Outcome**: Text elements placed programmatically
-
-- [✅] **CAP-FRAME-CREATION**: User creates organizational frames
-  - Custom titles
-  - Sizing and positioning
-  - Fill color options
-  - **Outcome**: Board structure defined through conversation
-
-- [✅] **CAP-CONNECTOR-CREATION**: User shows relationships between elements
-  - Connect any two items with lines/arrows
-  - Styling (color, width)
-  - 13 end cap styles (arrows, diamonds, ERD symbols)
-  - Optional caption text
-  - **Outcome**: Dependencies and relationships visualized programmatically
-
-- [✅] **CAP-CONNECTOR-STYLING**: User updates connector appearance
-  - Change color, width, end caps
-  - **Outcome**: Connector refinement without manual editing
+- [x] CAP-BOARD-OPS: User manages Miro boards through Claude ✅ 2025-11-10
+- [x] CAP-ITEM-READ: User discovers board content programmatically ✅ 2025-11-10
+- [x] CAP-ITEM-MODIFY: User updates existing board elements ✅ 2025-11-10
+- [x] CAP-STICKY-CREATION: User creates sticky notes with full styling control ✅ 2025-11-10
+- [x] CAP-SHAPE-CREATION: User creates geometric shapes and flowchart symbols ✅ 2025-11-10
+- [x] CAP-TEXT-CREATION: User adds text labels and annotations ✅ 2025-11-10
+- [x] CAP-FRAME-CREATION: User creates organizational frames ✅ 2025-11-10
+- [x] CAP-CONNECTOR-CREATION: User shows relationships between elements ✅ 2025-11-10
+- [x] CAP-CONNECTOR-STYLING: User updates connector appearance ✅ 2025-11-10
 
 ### Infrastructure Capabilities
 
-- [✅] **CAP-OAUTH-FLOW**: User authenticates with Miro once
-  - OAuth2 authorization code flow
-  - Interactive helper tool (`npm run oauth`)
-  - **Outcome**: Secure authentication without manual API configuration
-
-- [✅] **CAP-TOKEN-REFRESH**: User's session never expires during work
-  - Automatic access token refresh (1-hour tokens)
-  - Support for long-lived tokens (1-year tokens)
-  - Transparent token management
-  - **Outcome**: Uninterrupted Claude/Miro integration
-
-- [✅] **CAP-ERROR-HANDLING**: User gets actionable error messages
-  - MCP-compliant error codes
-  - Miro API error pass-through
-  - Rate limit tracking
-  - **Outcome**: Clear feedback when operations fail
-
-- [✅] **CAP-CLAUDE-DESKTOP**: User accesses Miro directly from Claude Desktop
-  - MCP protocol implementation
-  - StdIO transport
-  - Environment-based configuration
-  - **Outcome**: Miro tools available in Claude Desktop conversation
+- [x] CAP-OAUTH-FLOW: User authenticates with Miro once ✅ 2025-11-10
+- [x] CAP-TOKEN-REFRESH: User's session never expires during work ✅ 2025-11-10
+- [x] CAP-ERROR-HANDLING: User gets actionable error messages ✅ 2025-11-10
+- [x] CAP-CLAUDE-DESKTOP: User accesses Miro directly from Claude Desktop ✅ 2025-11-10
 
 ### Configuration & Security
 
-- [✅] **CAP-CONFIG-MANAGEMENT**: User manages credentials centrally
-  - Config directory: `~/.config/mcps/miro-dev/`
-  - Separate credentials and tokens files
-  - **Outcome**: Clean separation of credentials from Claude Desktop config
-
-- [✅] **CAP-SECURITY**: User's credentials never leak
-  - No credentials in git
-  - No hardcoded secrets
-  - Environment-based configuration
-  - **Outcome**: Production-ready security posture
+- [x] CAP-CONFIG-MANAGEMENT: User manages credentials centrally ✅ 2025-11-10
+- [x] CAP-SECURITY: User's credentials never leak ✅ 2025-11-10
 
 ### Testing & Quality
 
-- [✅] **CAP-API-TESTING**: Developer validates Miro integration
-  - Comprehensive API test suite
-  - Board and item operations coverage
-  - **Outcome**: Confidence in Miro API integration
-
-- [✅] **CAP-MCP-TESTING**: Developer validates MCP protocol compliance
-  - Protocol-level integration tests
-  - Request/response validation
-  - **Outcome**: MCP specification compliance verified
+- [x] CAP-API-TESTING: Developer validates Miro integration ✅ 2025-11-10
+- [x] CAP-MCP-TESTING: Developer validates MCP protocol compliance ✅ 2025-11-10
 
 ### Documentation & Examples
 
-- [✅] **CAP-DOCUMENTATION**: User understands setup and usage
-  - Complete README with examples
-  - OAuth setup guide
-  - Claude Desktop configuration guide
-  - Troubleshooting documentation
-  - **Outcome**: Self-service onboarding
+- [x] CAP-DOCUMENTATION: User understands setup and usage ✅ 2025-11-10
+- [x] CAP-DEMO-EXAMPLE: User sees real-world usage pattern ✅ 2025-11-10
 
-- [✅] **CAP-DEMO-EXAMPLE**: User sees real-world usage pattern
-  - Spotify team-of-teams visualization (384 lines)
-  - Complex board generation example
-  - **Outcome**: Reference implementation for complex visualizations
+### In Progress (Completed 2025-11-24)
 
-## In Progress
+- [x] CAP-HTTP-HANDLER: Developer creates gateway-compatible HTTP handler ✅ 2025-11-24
 
-- [✅] **CAP-HTTP-HANDLER**: Developer creates gateway-compatible HTTP handler ✅ 2025-11-24
-  - JSON-RPC handler (POST /mcp) with MCP protocol compliance
-  - OAuth HTTP endpoints (GET /oauth/authorize, /oauth/callback)
-  - Token persistence via volume mount (/data/tokens.json)
-  - Health check endpoint (GET /health)
-  - Docker-ready with graceful shutdown
-  - **Outcome achieved**: Miro MCP ready for gateway integration
+### Recently Completed (2025-11-10)
 
-## Recently Completed (2025-11-10)
-
-- [✅] **FEAT1**: User places items directly in frames (vs manual move after creation) ✅ 2025-11-10
-  - Added optional parent_id parameter to create_sticky_note, create_shape, create_text
-  - Items can be created directly inside frames
-  - **Outcome achieved**: Hierarchical boards created in single Claude conversation
+- [x] FEAT1: User places items directly in frames ✅ 2025-11-10
 
 ### Performance Optimizations (Quick Wins) - 2025-11-10
 
-- [✅] **CAP-INSTANT-RESPONSE**: User experiences faster board operations ✅ 2025-11-10
-  - Board list and details load instantly on repeated access (5-minute cache)
-  - Cache invalidation on createBoard()
-  - **Outcome achieved**: 50-70% reduction in API calls for board discovery
+- [x] CAP-INSTANT-RESPONSE: User experiences faster board operations ✅ 2025-11-10
+- [x] CAP-BURST-PERFORMANCE: User creates multiple items rapidly ✅ 2025-11-10
+- [x] TECH-CLARITY: Developer modifies configuration easily ✅ 2025-11-10
+- [x] TECH-MAINTAINABILITY: Developer modifies style logic in one place ✅ 2025-11-10
 
-- [✅] **CAP-BURST-PERFORMANCE**: User creates multiple items rapidly ✅ 2025-11-10
-  - Token validation happens once per session, cached until 5min before expiry
-  - In-memory token cache eliminates filesystem I/O on every request
-  - **Outcome achieved**: 90% reduction in authentication overhead during intensive work
+### Technical Capabilities (Developer Experience)
 
-- [✅] **TECH-CLARITY**: Developer modifies configuration easily ✅ 2025-11-10
-  - Centralized config.ts with named constants
-  - Self-documenting configuration values
-  - **Outcome achieved**: Configuration changes in one file vs. scattered magic numbers
+- [x] TECH-TESTABILITY: Developer tests components in isolation ✅ 2025-11-24
 
-- [✅] **TECH-MAINTAINABILITY**: Developer modifies style logic in one place ✅ 2025-11-10
-  - DRY color resolution helper eliminates 36 lines of duplication
-  - Single resolveColor() method for all color mapping
-  - **Outcome achieved**: Color logic changes affect all item types consistently
+## In Progress
+
+- [⏳] OPS1: Operator sees accurate authentication status in health check
 
 ## Planned
 
 ### High Priority
 
-- [📋] **CAP-BATCH-CREATION**: User creates multiple similar items efficiently
-  - Bulk sticky note creation
-  - Template-based item generation
-  - **Outcome**: Large boards (50+ items) created faster
+- [ ] CAP-BATCH-CREATION: User creates multiple similar items efficiently
+- [ ] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns
 
-- [📋] **CAP-LAYOUT-ASSISTANCE**: User gets suggested layouts for common patterns
-  - Grid layout for sticky notes
-  - Radial layout for hub-and-spoke
-  - Hierarchical tree layout
-  - **Outcome**: Professional-looking boards without manual positioning
+### Medium Priority
+- [ ] CAP-RELIABLE-ERRORS: User understands errors clearly
+- [ ] CAP-BOARD-TEMPLATES: User starts from common diagram types
+- [ ] CAP-ITEM-SEARCH: User finds elements by content or properties
+- [ ] CAP-BOARD-EXPORT: User captures board state
 
-### Medium Priority (Architecture & Features)
+### Low Priority
 
-- [📋] **CAP-RELIABLE-ERRORS**: User understands errors clearly (vs cryptic messages)
-  - Consistent error messages across all operations
-  - Actionable error guidance (what to do next)
-  - **Outcome**: Self-service troubleshooting without developer intervention
-
-- [📋] **CAP-BOARD-TEMPLATES**: User starts from common diagram types
-  - Team topology templates
-  - Kanban board template
-  - Retrospective template
-  - **Outcome**: Faster board creation for common use cases
-
-- [📋] **CAP-ITEM-SEARCH**: User finds elements by content or properties
-  - Search by text content
-  - Filter by color, type, position
-  - **Outcome**: Large boards become navigable through Claude
-
-- [📋] **CAP-BOARD-EXPORT**: User captures board state
-  - JSON export of board structure
-  - Ability to recreate boards from JSON
-  - **Outcome**: Board versioning and backup
-
-### Low Priority (Features)
-
-- [📋] **CAP-IMAGE-UPLOAD**: User adds images to boards
-  - Upload local images
-  - Position and size images
-  - **Outcome**: Richer visualizations with logos and photos
-
-- [📋] **CAP-BOARD-PERMISSIONS**: User controls board access
-  - Share boards with specific users
-  - Set view/edit permissions
-  - **Outcome**: Collaboration control through Claude
-
-- [📋] **CAP-COMMENTS**: User adds contextual notes
-  - Create comments on items
-  - Reply to comments
-  - **Outcome**: Asynchronous collaboration via Claude
-
-### Technical Capabilities (Developer Experience)
-
-- [✅] **TECH-TESTABILITY**: Developer tests components in isolation ✅ 2025-11-24
-  - Vitest framework with 39 unit tests
-  - Coverage: functions-handler, oauth, tools
-  - Fast feedback: 450ms test suite
-  - **Outcome achieved**: Automated test suite with mocks for critical paths
+- [ ] CAP-IMAGE-UPLOAD: User adds images to boards
+- [ ] CAP-BOARD-PERMISSIONS: User controls board access
+- [ ] CAP-COMMENTS: User adds contextual notes
 
 ### OPS/Infrastructure (Deferred)
 
-- [📋] **OPS-SCALEWAY-DEPLOY**: Deploy Miro MCP to Scaleway Functions infrastructure
-  - Deployment script (deploy-scaleway-functions.sh) automating build, package, upload
-  - Scaleway namespace and function configuration
-  - Environment variable setup (MIRO_CONFIG_B64, X-Auth-Token)
-  - Monitoring and health checks
-  - **Outcome**: Miro MCP accessible via HTTPS from any Claude client
-  - **Prerequisite**: CAP-HTTP-HANDLER must be completed first
+- [ ] OPS-SCALEWAY-DEPLOY: Deploy Miro MCP to Scaleway Functions infrastructure
 
 ## Backlog Health
 
-**Total Capabilities Delivered**: 22 capabilities
+**Total Capabilities Delivered**: 26 capabilities
   - 16 MVP capabilities (Initial implementation)
   - 1 Feature (FEAT1 - parent_id)
   - 2 Performance (CAP-INSTANT-RESPONSE, CAP-BURST-PERFORMANCE)
@@ -247,12 +96,13 @@
   - CAP-HTTP-HANDLER: JSON-RPC handler + OAuth HTTP endpoints
   - TECH-TESTABILITY: Vitest framework with 39 unit tests
 
-**Planned Work**: 8 items remaining
+**Planned Work**: 11 items remaining
   - 2 High Priority (Features - CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
-  - 5 Medium Priority (Architecture & Features)
+  - 5 Medium Priority (OPS1, CAP-RELIABLE-ERRORS, CAP-BOARD-TEMPLATES, CAP-ITEM-SEARCH, CAP-BOARD-EXPORT)
+  - 3 Low Priority (CAP-IMAGE-UPLOAD, CAP-BOARD-PERMISSIONS, CAP-COMMENTS)
   - 1 OPS/Infrastructure (OPS-SCALEWAY-DEPLOY - deferred)
 
-**Technical Investment Ratio**: 10% (1 of 10 remaining items)
+**Technical Investment Ratio**: 9% (1 of 11 remaining items)
   - **Status**: 🟢 Green Zone (0-20%) - Excellent balance
   - Quick Wins delivered 50-90% performance gains in 2-3h
   - Focus: New features next, architecture improvements as needed
@@ -263,7 +113,7 @@
   - Auth overhead: 90% reduction via token caching
   - Code duplication: -36 lines (DRY compliance improved)
 
-**Velocity**: 20 capabilities delivered in one development session (2025-11-10)
+**Velocity**: 26 capabilities delivered across 2 development sessions (2025-11-10, 2025-11-24)
 
 **Note**: All completed capabilities are production-ready and tested.
 
@@ -271,7 +121,5 @@
 
 - **v0.1.0** (2025-11-10 AM): Initial MVP with 14 MCP tools, OAuth2, and Claude Desktop integration
 - **v0.1.1** (2025-11-10 PM): Frame-based organization (FEAT1) + Performance optimizations (Quick Wins)
-  - Features: parent_id support for hierarchical boards
-  - Performance: Board caching (50-70% API reduction), token caching (90% auth overhead reduction)
-  - Code quality: DRY color helper, centralized config.ts
-- **Current** (HEAD): 20 capabilities delivered, production-ready
+- **v0.1.2** (2025-11-24): HTTP handler + Unit test suite (Gateway-ready + TECH-TESTABILITY)
+- **Current** (HEAD): 26 capabilities delivered, production-ready
