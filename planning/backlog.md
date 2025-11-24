@@ -57,7 +57,11 @@
 
 ## In Progress
 
-- [⏳] OPS1: Operator sees accurate authentication status in health check
+(No items currently in progress)
+
+## Recently Completed (2025-11-24)
+
+- [x] OPS1: Operator sees accurate authentication status in health check ✅ 2025-11-24
 
 ## Planned
 
