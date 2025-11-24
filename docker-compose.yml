@@ -1,0 +1,40 @@
+# Miro MCP - Standalone deployment
+#
+# Internal service accessed via mcp-gateway.
+# NOT exposed to internet (no Traefik route).
+#
+# Usage:
+#   1. Copy .env.docker.example to .env and configure
+#   2. docker compose up -d
+
+services:
+  miro-mcp:
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MIRO_CLIENT_ID_B64=${MIRO_CLIENT_ID_B64}
+      - MIRO_CLIENT_SECRET_B64=${MIRO_CLIENT_SECRET_B64}
+      - MIRO_ACCESS_TOKEN_B64=${MIRO_ACCESS_TOKEN_B64}
+      - MIRO_REFRESH_TOKEN_B64=${MIRO_REFRESH_TOKEN_B64}
+    volumes:
+      - miro-tokens:/data
+    networks:
+      - ingress
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+    labels:
+      # Internal only - not exposed via Traefik
+      - "traefik.enable=false"
+
+networks:
+  ingress:
+    external: true
+
+volumes:
+  miro-tokens:
