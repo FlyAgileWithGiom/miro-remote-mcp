@@ -467,12 +467,7 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
         throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
     }
   } catch (error: any) {
-    if (error.response?.data) {
-      throw new McpError(
-        ErrorCode.InternalError,
-        `Miro API error: ${JSON.stringify(error.response.data)}`
-      );
-    }
+    // Errors from MiroClient are pre-formatted with rich diagnostics
     throw new McpError(ErrorCode.InternalError, error.message || 'Unknown error occurred');
   }
 }

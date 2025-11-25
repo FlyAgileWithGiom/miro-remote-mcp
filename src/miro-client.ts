@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { OAuth2Manager } from './oauth.js';
 import { OAUTH_CONFIG, CACHE_CONFIG, MIRO_DEFAULTS, TOKEN_CONFIG } from './config.js';
+import { classifyAxiosError, formatDiagnosticError } from './errors.js';
 
 // Color mapping: named colors to hex (shapes require hex, sticky notes accept names)
 const COLOR_MAP: Record<string, string> = {
@@ -127,11 +128,13 @@ export class MiroClient {
         return response;
       },
       async (error: AxiosError) => {
-        if (error.response?.status === 429) {
-          const retryAfter = error.response.headers['retry-after'] || 60;
-          throw new Error(`Rate limit exceeded. Retry after ${retryAfter} seconds.`);
-        }
-        throw error;
+        // Classify all errors with rich diagnostics
+        const diagnostic = classifyAxiosError(error);
+        const formattedError = new Error(formatDiagnosticError(diagnostic));
+        // Preserve original error info for upstream handling
+        (formattedError as any).diagnostic = diagnostic;
+        (formattedError as any).response = error.response;
+        throw formattedError;
       }
     );
   }
