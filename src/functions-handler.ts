@@ -226,10 +226,19 @@ class MiroFunctionHandler {
 
         try {
           const result = await handleToolCall(toolName, toolArgs, this.miroClient!);
-          return apiResponse(200, jsonRpcSuccess(id, result));
+          // MCP spec: tools/call must return {content: [{type, text}]}
+          const mcpResult = {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+          return apiResponse(200, jsonRpcSuccess(id, mcpResult));
         } catch (error) {
           const msg = error instanceof Error ? error.message : 'Tool execution failed';
-          return apiResponse(200, jsonRpcError(id, -32603, msg));
+          // MCP spec: errors should also use content format with isError flag
+          const mcpError = {
+            content: [{ type: 'text', text: msg }],
+            isError: true,
+          };
+          return apiResponse(200, jsonRpcSuccess(id, mcpError));
         }
       }
 
