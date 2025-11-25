@@ -1,6 +1,6 @@
 # planning/user-stories.md
 
-### CAP-SCALEWAY-DEPLOY: User accesses Miro MCP from any Claude client (not just local Desktop)
+### OPS-SCALEWAY: User accesses Miro MCP from any Claude client (not just local Desktop)
 
 **User**: Claude user on web, mobile, or any MCP-compatible client needing Miro integration
 **Outcome**: Miro board operations available through HTTP endpoint from any device/platform
@@ -50,5 +50,21 @@
 - Test with existing frames to verify containment
 
 **Source**: USER_REQUEST - layer/frame organization discussion
+
+---
+
+### CAP-RELIABLE-ERRORS: Developer debugs MCP tool failures efficiently
+
+**User**: Developer using Miro MCP via Claude Desktop/Code
+**Outcome**: Error messages reveal cause and suggest resolution (vs generic "Error occurred")
+**Context**: Currently all errors show "Error occurred during tool execution" - no visibility into actual cause (API error, auth issue, invalid parameters, rate limit)
+
+**Acceptance Criteria**:
+- [ ] Error messages include: error type, cause, affected tool
+- [ ] Miro API errors surface status code and message
+- [ ] Auth errors indicate token expiry or permission issues
+- [ ] Invalid parameters show which parameter failed
+
+**Source**: BACKLOG - foundation capability
 
 ---

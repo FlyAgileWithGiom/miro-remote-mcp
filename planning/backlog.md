@@ -66,13 +66,31 @@
 
 ## Planned
 
+### Priority Rationale
+
+**High Priority**: Foundation + Highest ROI (effort vs user value)
+- CAP-RELIABLE-ERRORS: Foundation capability - error clarity blocks debugging and enables production usage for ALL future capabilities
+- CAP-BATCH-CREATION: Reduces conversation verbosity 10x for repetitive tasks (10 messages → 1 command)
+- CAP-LAYOUT-ASSISTANCE: Eliminates coordinate calculation burden for structured diagrams
+
+**Medium Priority**: Important UX improvements, moderate effort
+- CAP-BOARD-TEMPLATES: Reduces time-to-first-board for common patterns (org charts, kanban, etc.)
+- CAP-ITEM-SEARCH: Enables navigation in boards with 50+ items without visual scanning
+- CAP-BOARD-EXPORT: Enables backup/versioning workflows and documentation generation
+
+**Low Priority**: Nice-to-have features, uncertain demand
+- CAP-IMAGE-UPLOAD: Media-rich boards (use case unvalidated)
+- CAP-BOARD-PERMISSIONS: Collaboration features (solo usage primary)
+- CAP-COMMENTS: Annotation features (low demand signal)
+
 ### High Priority
 
+- [ ] CAP-RELIABLE-ERRORS: Developer debugs MCP tool failures efficiently
 - [ ] CAP-BATCH-CREATION: User creates multiple similar items efficiently
 - [ ] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns
 
 ### Medium Priority
-- [ ] CAP-RELIABLE-ERRORS: User understands errors clearly
+
 - [ ] CAP-BOARD-TEMPLATES: User starts from common diagram types
 - [ ] CAP-ITEM-SEARCH: User finds elements by content or properties
 - [ ] CAP-BOARD-EXPORT: User captures board state
@@ -85,7 +103,7 @@
 
 ### OPS/Infrastructure (Deferred)
 
-- [ ] OPS-SCALEWAY-DEPLOY: Deploy Miro MCP to Scaleway Functions infrastructure
+- [ ] OPS-SCALEWAY: Deploy Miro MCP to Scaleway Functions infrastructure
 
 ## Backlog Health
 
@@ -101,16 +119,16 @@
   - CAP-HTTP-HANDLER: JSON-RPC handler + OAuth HTTP endpoints
   - TECH-TESTABILITY: Vitest framework with 39 unit tests
 
-**Planned Work**: 11 items remaining
-  - 2 High Priority (Features - CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
-  - 5 Medium Priority (OPS1, CAP-RELIABLE-ERRORS, CAP-BOARD-TEMPLATES, CAP-ITEM-SEARCH, CAP-BOARD-EXPORT)
+**Planned Work**: 10 items remaining
+  - 3 High Priority (CAP-RELIABLE-ERRORS, CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
+  - 3 Medium Priority (CAP-BOARD-TEMPLATES, CAP-ITEM-SEARCH, CAP-BOARD-EXPORT)
   - 3 Low Priority (CAP-IMAGE-UPLOAD, CAP-BOARD-PERMISSIONS, CAP-COMMENTS)
-  - 1 OPS/Infrastructure (OPS-SCALEWAY-DEPLOY - deferred)
+  - 1 OPS/Infrastructure (OPS-SCALEWAY - deferred)
 
-**Technical Investment Ratio**: 9% (1 of 11 remaining items)
+**Technical Investment Ratio**: 10% (1 of 10 remaining items)
   - **Status**: 🟢 Green Zone (0-20%) - Excellent balance
   - Quick Wins delivered 50-90% performance gains in 2-3h
-  - Focus: New features next, architecture improvements as needed
+  - Focus: Foundation first (CAP-RELIABLE-ERRORS), then features
   - **Note**: OPS work (deployment) cleanly separated from DEV work
 
 **Performance Achievements**:
