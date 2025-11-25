@@ -1,0 +1,27 @@
+name: Deploy to Development
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., commit SHA or tag)'
+        required: false
+        default: 'main'
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: dev
+      version: ${{ github.event.inputs.version || '' }}
+      log_retention_days: 14
+      BASE_URI: ${{ vars.DEV_BASE_URI }}
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+      SERVER_HOST: ${{ secrets.DEV_SERVER_HOST }}
+      MIRO_CLIENT_ID_B64: ${{ secrets.DEV_MIRO_CLIENT_ID_B64 }}
+      MIRO_CLIENT_SECRET_B64: ${{ secrets.DEV_MIRO_CLIENT_SECRET_B64 }}
