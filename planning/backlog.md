@@ -85,7 +85,7 @@
 
 ### High Priority
 
-- [ ] CAP-RICH-DIAGNOSTICS: Developer identifies failure root cause in one glance
+- [x] CAP-RICH-DIAGNOSTICS: Developer identifies failure root cause in one glance ✅ 2025-11-25
 - [ ] CAP-BATCH-CREATION: User creates multiple similar items efficiently
 - [ ] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns
 
@@ -107,28 +107,28 @@
 
 ## Backlog Health
 
-**Total Capabilities Delivered**: 26 capabilities
+**Total Capabilities Delivered**: 27 capabilities
   - 16 MVP capabilities (Initial implementation)
   - 1 Feature (FEAT1 - parent_id)
   - 2 Performance (CAP-INSTANT-RESPONSE, CAP-BURST-PERFORMANCE)
   - 2 Technical (TECH-CLARITY, TECH-MAINTAINABILITY)
   - 1 Infrastructure (CAP-HTTP-HANDLER - gateway-ready)
   - 1 Technical (TECH-TESTABILITY - unit test suite)
+  - 1 Developer Experience (CAP-RICH-DIAGNOSTICS - error classification)
 
-**Recently Completed** (2025-11-24):
-  - CAP-HTTP-HANDLER: JSON-RPC handler + OAuth HTTP endpoints
-  - TECH-TESTABILITY: Vitest framework with 39 unit tests
+**Recently Completed** (2025-11-25):
+  - CAP-RICH-DIAGNOSTICS: Error classification with actionable suggestions
 
-**Planned Work**: 10 items remaining
-  - 3 High Priority (CAP-RICH-DIAGNOSTICS, CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
+**Planned Work**: 9 items remaining
+  - 2 High Priority (CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
   - 3 Medium Priority (CAP-BOARD-TEMPLATES, CAP-ITEM-SEARCH, CAP-BOARD-EXPORT)
   - 3 Low Priority (CAP-IMAGE-UPLOAD, CAP-BOARD-PERMISSIONS, CAP-COMMENTS)
   - 1 OPS/Infrastructure (OPS-SCALEWAY - deferred)
 
-**Technical Investment Ratio**: 10% (1 of 10 remaining items)
+**Technical Investment Ratio**: 11% (1 of 9 remaining items)
   - **Status**: 🟢 Green Zone (0-20%) - Excellent balance
   - Quick Wins delivered 50-90% performance gains in 2-3h
-  - Focus: Foundation first (CAP-RICH-DIAGNOSTICS), then features
+  - Foundation complete (CAP-RICH-DIAGNOSTICS), focus on features
   - **Note**: OPS work (deployment) cleanly separated from DEV work
 
 **Performance Achievements**:
@@ -145,4 +145,5 @@
 - **v0.1.0** (2025-11-10 AM): Initial MVP with 14 MCP tools, OAuth2, and Claude Desktop integration
 - **v0.1.1** (2025-11-10 PM): Frame-based organization (FEAT1) + Performance optimizations (Quick Wins)
 - **v0.1.2** (2025-11-24): HTTP handler + Unit test suite (Gateway-ready + TECH-TESTABILITY)
-- **Current** (HEAD): 26 capabilities delivered, production-ready
+- **v0.1.3** (2025-11-25): Rich error diagnostics (CAP-RICH-DIAGNOSTICS)
+- **Current** (HEAD): 27 capabilities delivered, production-ready
