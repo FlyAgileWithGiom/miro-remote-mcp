@@ -6,6 +6,8 @@ on:
     branches:
       - main
       - feat/*
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       push_image:
@@ -48,7 +50,7 @@ jobs:
       contents: read
       packages: write
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.push_image == 'true')
 
     steps:
@@ -83,7 +85,7 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=sha,format=long
-            type=ref,event=branch
+            type=semver,pattern={{version}}
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
