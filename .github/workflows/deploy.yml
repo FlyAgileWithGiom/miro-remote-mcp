@@ -110,19 +110,25 @@ jobs:
           scp miro-mcp/docker-compose.yml root@${{ secrets.SERVER_HOST }}:/opt/miro-mcp/
 
       - name: Login to registry on server and pull image
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          ssh root@${{ secrets.SERVER_HOST }} bash << REMOTE_EOF
+          ssh root@${{ secrets.SERVER_HOST }} \
+            GH_PAT="$GH_PAT" \
+            GH_ACTOR="${{ github.actor }}" \
+            GH_REPO="${{ github.repository }}" \
+            IMAGE_TAG="${{ steps.version.outputs.image_tag }}" \
+            bash << 'REMOTE_EOF'
           set -e
 
           # Login to GitHub Container Registry
-          echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "$GH_PAT" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
 
           # Pull the image
-          docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.image_tag }}
+          docker pull "ghcr.io/$GH_REPO:$IMAGE_TAG"
 
           # Tag as latest for docker-compose
-          docker tag ghcr.io/${{ github.repository }}:${{ steps.version.outputs.image_tag }} \
-                     ghcr.io/${{ github.repository }}:latest
+          docker tag "ghcr.io/$GH_REPO:$IMAGE_TAG" "ghcr.io/$GH_REPO:latest"
           REMOTE_EOF
 
       - name: Deploy with docker-compose
