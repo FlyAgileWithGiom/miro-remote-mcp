@@ -111,38 +111,23 @@ jobs:
           scp .env root@${{ secrets.SERVER_HOST }}:/opt/miro-mcp/
           scp miro-mcp/docker-compose.yml root@${{ secrets.SERVER_HOST }}:/opt/miro-mcp/
 
-      - name: Login to registry on server and pull image
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+      - name: Pull image from registry
         run: |
           # Convert repository name to lowercase for ghcr.io
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
 
-          # Base64 encode the PAT to safely pass it through SSH
-          GH_PAT_B64=$(echo -n "$GH_PAT" | base64)
+          # NOTE: Server must be logged into ghcr.io already (one-time setup)
+          # Run this once on the server: echo "$GH_PAT" | docker login ghcr.io -u USERNAME --password-stdin
 
-          echo "DEBUG: Repository (lowercase): $REPO_LOWER"
-          echo "DEBUG: Image tag: ${{ steps.version.outputs.image_tag }}"
-          echo "DEBUG: Actor: ${{ github.actor }}"
-
-          ssh root@${{ secrets.SERVER_HOST }} "GH_PAT_B64='$GH_PAT_B64' GH_ACTOR='${{ github.actor }}' GH_REPO='$REPO_LOWER' IMAGE_TAG='${{ steps.version.outputs.image_tag }}' bash -s" << 'REMOTE_EOF'
-          set -ex
-
-          # Decode the PAT
-          GH_PAT=$(echo "$GH_PAT_B64" | base64 -d)
-
-          echo "DEBUG: Logging in as: $GH_ACTOR"
-          echo "DEBUG: Image to pull: ghcr.io/$GH_REPO:$IMAGE_TAG"
-
-          # Login to GitHub Container Registry
-          echo "$GH_PAT" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
+          ssh root@${{ secrets.SERVER_HOST }} bash << EOF
+          set -e
 
           # Pull the image
-          docker pull "ghcr.io/$GH_REPO:$IMAGE_TAG"
+          docker pull "ghcr.io/$REPO_LOWER:${{ steps.version.outputs.image_tag }}"
 
           # Tag as latest for docker-compose
-          docker tag "ghcr.io/$GH_REPO:$IMAGE_TAG" "ghcr.io/$GH_REPO:latest"
-          REMOTE_EOF
+          docker tag "ghcr.io/$REPO_LOWER:${{ steps.version.outputs.image_tag }}" "ghcr.io/$REPO_LOWER:latest"
+          EOF
 
       - name: Deploy with docker-compose
         run: |
