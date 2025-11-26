@@ -23,7 +23,7 @@ jobs:
       log_retention_days: 14
       BASE_URI: ${{ vars.DEV_BASE_URI }}
     secrets:
-      SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_HOST: ${{ secrets.DEV_SERVER_HOST }}
       MIRO_CLIENT_ID_B64: ${{ secrets.DEV_MIRO_CLIENT_ID_B64 }}
       MIRO_CLIENT_SECRET_B64: ${{ secrets.DEV_MIRO_CLIENT_SECRET_B64 }}
