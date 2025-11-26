@@ -43,7 +43,8 @@ jobs:
         run: |
           if [ "${{ github.ref_type }}" == "tag" ]; then
             VERSION="${{ github.ref_name }}"
-            IMAGE_TAG="${VERSION}"
+            # Strip dev- prefix if present (dev-1.2.3 -> 1.2.3)
+            IMAGE_TAG="${VERSION#dev-}"
           elif [ -n "${{ inputs.version }}" ]; then
             VERSION="${{ inputs.version }}"
             IMAGE_TAG="${VERSION}"
