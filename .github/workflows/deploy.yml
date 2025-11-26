@@ -116,12 +116,19 @@ jobs:
           # Convert repository name to lowercase for ghcr.io
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
 
+          echo "DEBUG: Repository (lowercase): $REPO_LOWER"
+          echo "DEBUG: Image tag: ${{ steps.version.outputs.image_tag }}"
+          echo "DEBUG: Actor: ${{ github.actor }}"
+
           ssh root@${{ secrets.SERVER_HOST }} bash -s "${{ secrets.GH_PAT }}" "${{ github.actor }}" "$REPO_LOWER" "${{ steps.version.outputs.image_tag }}" << 'REMOTE_EOF'
-          set -e
+          set -ex
           GH_PAT="$1"
           GH_ACTOR="$2"
           GH_REPO="$3"
           IMAGE_TAG="$4"
+
+          echo "DEBUG: Logging in as: $GH_ACTOR"
+          echo "DEBUG: Image to pull: ghcr.io/$GH_REPO:$IMAGE_TAG"
 
           # Login to GitHub Container Registry
           echo "$GH_PAT" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
