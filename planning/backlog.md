@@ -20,6 +20,7 @@
 - [x] CAP-TOKEN-REFRESH: User's session never expires during work ✅ 2025-11-10
 - [x] CAP-ERROR-HANDLING: User gets actionable error messages ✅ 2025-11-10
 - [x] CAP-CLAUDE-DESKTOP: User accesses Miro directly from Claude Desktop ✅ 2025-11-10
+- [x] CAP-REAUTH-FLOW: User receives reauthentication URL when Miro tokens expire ✅ 2025-11-27
 
 ### Configuration & Security
 
