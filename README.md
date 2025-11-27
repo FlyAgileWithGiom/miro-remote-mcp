@@ -13,6 +13,34 @@ Model Context Protocol (MCP) server for Miro API with OAuth2 authentication. Ena
 - **Rate Limiting**: Built-in handling of Miro's API rate limits
 - **Error Handling**: Comprehensive error reporting and recovery
 
+## Architecture Pattern
+
+**Standalone Single-Account MCP Server:**
+
+This server follows the **standalone pattern** where it manages its own Miro OAuth tokens:
+- One server instance = one Miro account (the server owner's account)
+- Tokens stored locally (`/data/tokens.json` in production, `~/.config/mcps/miro-dev/tokens.json` in development)
+- No multi-user support (all clients use the same Miro account)
+- Reauthentication URL: `${BASE_URI}/oauth/authorize` (the server itself)
+
+**Comparison with mcp-gateway pattern:**
+
+This is different from the `mcp-gateway` architecture where:
+- The gateway manages tokens **per user** across multiple services
+- Each user has their own service accounts (Gmail, Miro, etc.)
+- Tokens stored in gateway database
+- Reauthentication URL: `${GATEWAY_URL}/mcp/miro/oauth/authorize?user_id=X`
+
+Choose standalone when:
+- ✅ Single Miro account for all Claude users
+- ✅ Simpler deployment (no gateway infrastructure)
+- ✅ Direct MCP connection
+
+Choose gateway when:
+- ✅ Multiple users with different Miro accounts
+- ✅ Unified access control across services
+- ✅ Centralized token management
+
 ## Installation
 
 ```bash
@@ -185,6 +213,29 @@ If you see authentication errors:
 1. The access token expires after 1 hour
 2. The server will automatically refresh using the refresh token
 3. If refresh token also expires, you need to re-authenticate
+
+**Automatic Reauthentication Flow:**
+
+When tokens are expired or invalid, Claude Desktop/Code will receive an error with a reauthentication URL:
+
+```json
+{
+  "error": {
+    "code": -32001,
+    "message": "Miro authentication expired or invalid.",
+    "data": {
+      "authorize_url": "https://your-server.com/oauth/authorize",
+      "action_hint": "Visit the authorize_url to reauthenticate with Miro"
+    }
+  }
+}
+```
+
+**To reauthenticate:**
+1. Visit the `authorize_url` from the error message
+2. You'll be redirected to Miro for authorization
+3. After approval, tokens are automatically saved
+4. Retry your original request
 
 ### Rate Limiting
 
