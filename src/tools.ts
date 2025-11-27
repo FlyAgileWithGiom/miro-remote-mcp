@@ -2,6 +2,17 @@ import { MiroClient } from './miro-client.js';
 import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 
 export const TOOL_DEFINITIONS = [
+  // Authentication
+  {
+    name: 'get_auth_status',
+    description: 'Get authorization status for Miro. Returns whether authenticated and provides authorization URL when not authenticated.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
+
   // Board Operations
   {
     name: 'list_boards',
@@ -377,6 +388,23 @@ export const TOOL_DEFINITIONS = [
 export async function handleToolCall(name: string, args: any, miroClient: MiroClient): Promise<any> {
   try {
     switch (name) {
+      // Authentication
+      case 'get_auth_status': {
+        // Access private oauth property using type assertion
+        const oauth = (miroClient as any).oauth;
+        const hasTokens = oauth?.hasTokens() ?? false;
+
+        if (hasTokens) {
+          return { status: 'authorized' };
+        }
+
+        const baseUri = process.env.BASE_URI || 'http://localhost:3000';
+        return {
+          status: 'not_authorized',
+          authorize_url: `${baseUri}/oauth/authorize`,
+        };
+      }
+
       // Board Operations
       case 'list_boards':
         return await miroClient.listBoards();

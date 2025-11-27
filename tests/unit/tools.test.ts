@@ -54,6 +54,15 @@ describe('tools', () => {
       expect(toolNames).toContain('create_board');
       expect(toolNames).toContain('create_sticky_note');
       expect(toolNames).toContain('create_connector');
+      expect(toolNames).toContain('get_auth_status');
+    });
+
+    it('get_auth_status has correct schema', () => {
+      const tool = TOOL_DEFINITIONS.find((t) => t.name === 'get_auth_status');
+      expect(tool).toBeDefined();
+      expect(tool?.description).toContain('authorization status');
+      expect(tool?.inputSchema.required).toEqual([]);
+      expect(tool?.inputSchema.properties).toEqual({});
     });
   });
 
@@ -184,6 +193,97 @@ describe('tools', () => {
         caption: undefined,
       });
       expect(result).toHaveProperty('type', 'connector');
+    });
+  });
+
+  describe('handleToolCall - get_auth_status', () => {
+    it('returns authorized status when tokens exist', async () => {
+      // Mock OAuth2Manager with tokens
+      const mockOAuthManager = {
+        hasTokens: vi.fn().mockReturnValue(true),
+      };
+      // Access private property for testing (MiroClient has private oauth property)
+      const mockMiroClientWithOAuth = {
+        ...mockMiroClient,
+        oauth: mockOAuthManager,
+      } as unknown as MiroClient;
+
+      const result = await handleToolCall('get_auth_status', {}, mockMiroClientWithOAuth);
+
+      expect(mockOAuthManager.hasTokens).toHaveBeenCalled();
+      expect(result).toEqual({
+        status: 'authorized',
+      });
+    });
+
+    it('returns not_authorized with authorize_url when no tokens', async () => {
+      // Mock OAuth2Manager without tokens
+      const mockOAuthManager = {
+        hasTokens: vi.fn().mockReturnValue(false),
+      };
+      const mockMiroClientWithOAuth = {
+        ...mockMiroClient,
+        oauth: mockOAuthManager,
+      } as unknown as MiroClient;
+
+      // Set BASE_URI environment variable for test
+      const originalBaseUri = process.env.BASE_URI;
+      process.env.BASE_URI = 'https://test.example.com';
+
+      const result = await handleToolCall('get_auth_status', {}, mockMiroClientWithOAuth);
+
+      expect(mockOAuthManager.hasTokens).toHaveBeenCalled();
+      expect(result).toEqual({
+        status: 'not_authorized',
+        authorize_url: 'https://test.example.com/oauth/authorize',
+      });
+
+      // Restore original BASE_URI
+      process.env.BASE_URI = originalBaseUri;
+    });
+
+    it('uses default BASE_URI when env var not set', async () => {
+      const mockOAuthManager = {
+        hasTokens: vi.fn().mockReturnValue(false),
+      };
+      const mockMiroClientWithOAuth = {
+        ...mockMiroClient,
+        oauth: mockOAuthManager,
+      } as unknown as MiroClient;
+
+      // Clear BASE_URI environment variable
+      const originalBaseUri = process.env.BASE_URI;
+      delete process.env.BASE_URI;
+
+      const result = await handleToolCall('get_auth_status', {}, mockMiroClientWithOAuth);
+
+      expect(result).toEqual({
+        status: 'not_authorized',
+        authorize_url: 'http://localhost:3000/oauth/authorize',
+      });
+
+      // Restore original BASE_URI
+      if (originalBaseUri) {
+        process.env.BASE_URI = originalBaseUri;
+      }
+    });
+
+    it('does not call Miro API', async () => {
+      // Ensure no Miro API methods are called
+      const mockOAuthManager = {
+        hasTokens: vi.fn().mockReturnValue(true),
+      };
+      const mockMiroClientWithOAuth = {
+        ...mockMiroClient,
+        oauth: mockOAuthManager,
+      } as unknown as MiroClient;
+
+      await handleToolCall('get_auth_status', {}, mockMiroClientWithOAuth);
+
+      // Verify no Miro API calls were made
+      expect(mockMiroClient.listBoards).not.toHaveBeenCalled();
+      expect(mockMiroClient.getBoard).not.toHaveBeenCalled();
+      expect(mockMiroClient.verifyAuth).not.toHaveBeenCalled();
     });
   });
 });
