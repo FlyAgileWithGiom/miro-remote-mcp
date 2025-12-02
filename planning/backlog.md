@@ -59,8 +59,12 @@
 
 ## In Progress
 
-- [⏳] CAP-BATCH-CREATION: User creates multiple similar items efficiently
-- [⏳] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns
+(No items currently in progress)
+
+## Recently Completed (2025-12-02)
+
+- [x] CAP-BATCH-CREATION: User creates multiple similar items efficiently ✅ 2025-12-02
+- [x] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns ✅ 2025-12-02
 
 ## Recently Completed (2025-11-27)
 
@@ -93,8 +97,8 @@
 ### High Priority
 
 - [x] CAP-RICH-DIAGNOSTICS: Developer identifies failure root cause in one glance ✅ 2025-11-25
-- [⏳] CAP-BATCH-CREATION: User creates multiple similar items efficiently
-- [⏳] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns
+- [x] CAP-BATCH-CREATION: User creates multiple similar items efficiently ✅ 2025-12-02
+- [x] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns ✅ 2025-12-02
 
 ### Medium Priority
 
@@ -114,7 +118,7 @@
 
 ## Backlog Health
 
-**Total Capabilities Delivered**: 28 capabilities
+**Total Capabilities Delivered**: 30 capabilities
   - 16 MVP capabilities (Initial implementation)
   - 1 Feature (FEAT1 - parent_id)
   - 2 Performance (CAP-INSTANT-RESPONSE, CAP-BURST-PERFORMANCE)
@@ -123,18 +127,19 @@
   - 1 Technical (TECH-TESTABILITY - unit test suite)
   - 1 Developer Experience (CAP-RICH-DIAGNOSTICS - error classification)
   - 2 Infrastructure Capabilities (CAP-REAUTH-FLOW, CAP-AUTH-STATUS - 2025-11-27)
+  - 2 Batch/Layout Capabilities (CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE - 2025-12-02)
 
-**Recently Completed** (2025-11-27):
-  - CAP-REAUTH-FLOW: Reauthentication error flow with authorize_url
-  - CAP-AUTH-STATUS: Auth status checking tool for proactive token management
+**Recently Completed** (2025-12-02):
+  - CAP-BATCH-CREATION: Batch creation of sticky notes, shapes, and text items
+  - CAP-LAYOUT-ASSISTANCE: 5 layout algorithms (grid, row, column, tree, radial)
 
-**Planned Work**: 9 items remaining
-  - 2 High Priority (CAP-BATCH-CREATION, CAP-LAYOUT-ASSISTANCE)
+**Planned Work**: 7 items remaining
+  - 0 High Priority (all completed)
   - 3 Medium Priority (CAP-BOARD-TEMPLATES, CAP-ITEM-SEARCH, CAP-BOARD-EXPORT)
   - 3 Low Priority (CAP-IMAGE-UPLOAD, CAP-BOARD-PERMISSIONS, CAP-COMMENTS)
   - 1 OPS/Infrastructure (OPS-SCALEWAY - deferred)
 
-**Technical Investment Ratio**: 11% (1 of 9 remaining items)
+**Technical Investment Ratio**: 14% (1 of 7 remaining items)
   - **Status**: 🟢 Green Zone (0-20%) - Excellent balance
   - Quick Wins delivered 50-90% performance gains in 2-3h
   - Foundation complete (CAP-RICH-DIAGNOSTICS), focus on features
@@ -144,8 +149,9 @@
   - API call reduction: 50-70% via board caching
   - Auth overhead: 90% reduction via token caching
   - Code duplication: -36 lines (DRY compliance improved)
+  - Batch creation: parallel item creation with Promise.allSettled
 
-**Velocity**: 28 capabilities delivered across 3 development sessions (2025-11-10, 2025-11-24, 2025-11-27)
+**Velocity**: 30 capabilities delivered across 4 development sessions (2025-11-10, 2025-11-24, 2025-11-27, 2025-12-02)
 
 **Note**: All completed capabilities are production-ready and tested.
 
@@ -156,4 +162,5 @@
 - **v0.1.2** (2025-11-24): HTTP handler + Unit test suite (Gateway-ready + TECH-TESTABILITY)
 - **v0.1.3** (2025-11-25): Rich error diagnostics (CAP-RICH-DIAGNOSTICS)
 - **v0.1.4** (2025-11-27): Reauthentication flow (CAP-REAUTH-FLOW + CAP-AUTH-STATUS)
-- **Current** (HEAD): 28 capabilities delivered, production-ready
+- **v0.2.0** (2025-12-02): Batch creation + Layout assistance (3 batch tools, 5 layout algorithms)
+- **Current** (HEAD): 30 capabilities delivered, production-ready
