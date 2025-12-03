@@ -104,8 +104,8 @@
 - [x] CAP-RICH-DIAGNOSTICS: Developer identifies failure root cause in one glance ✅ 2025-11-25
 - [x] CAP-BATCH-CREATION: User creates multiple similar items efficiently ✅ 2025-12-02
 - [x] CAP-LAYOUT-ASSISTANCE: User gets suggested layouts for common patterns ✅ 2025-12-02
-- [ ] CAP-BOARD-SYNC: Agent AI retrieves complete board snapshot in single request
-- [ ] CAP-BATCH-UPDATE: Agent AI updates multiple items atomically
+- [x] CAP-BOARD-SYNC: Agent AI retrieves complete board snapshot in single request ✅ 2025-12-03
+- [x] CAP-BATCH-UPDATE: Agent AI updates multiple items atomically ✅ 2025-12-03
 - [ ] **EPIC-SDK-BRIDGE**: Agent AI accesses Web SDK features (z-index, selection, grouping) via bridge app
 
 ### Medium Priority
