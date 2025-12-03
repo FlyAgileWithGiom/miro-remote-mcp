@@ -68,11 +68,21 @@ export interface MiroItem {
   links?: any;
 }
 
+/**
+ * Miro API Client with automatic rate limit management
+ *
+ * Rate Limiting Strategy:
+ * - Tracks remaining API quota from response headers (x-ratelimit-remaining, x-ratelimit-reset)
+ * - When quota approaches threshold (< 10 remaining), automatically waits until reset time
+ * - Prevents 429 (Too Many Requests) errors on batch operations
+ * - Gracefully handles queueing: waits silently without failing requests
+ */
 export class MiroClient {
   private client: AxiosInstance;
   private oauth: OAuth2Manager;
   private rateLimitRemaining: number = 100;
   private rateLimitReset: number = Date.now();
+  private readonly RATE_LIMIT_THRESHOLD = 10;
 
   // Performance optimizations: Caching
   private boardListCache: { data: MiroBoard[]; expiresAt: number } | null = null;
@@ -104,8 +114,18 @@ export class MiroClient {
       },
     });
 
-    // Add request interceptor to inject auth token (with caching)
+    // Add request interceptor to inject auth token (with caching) and enforce rate limiting
     this.client.interceptors.request.use(async (config) => {
+      // Check rate limit before making request
+      if (this.rateLimitRemaining < this.RATE_LIMIT_THRESHOLD) {
+        const now = Date.now();
+        const waitTime = this.rateLimitReset - now;
+        if (waitTime > 0) {
+          console.log(`Rate limit approaching (${this.rateLimitRemaining} remaining), waiting ${waitTime}ms until reset`);
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
+
       const now = Date.now();
       // Use cached token if valid (5-minute buffer before expiry)
       if (!this.cachedToken || this.tokenExpiresAt <= now + TOKEN_CONFIG.REFRESH_BUFFER_MS) {
@@ -679,5 +699,14 @@ export class MiroClient {
     } catch (error) {
       return false;
     }
+  }
+
+  // Get current rate limit status for observability
+  getRateLimitStatus(): { remaining: number; resetAt: number; threshold: number } {
+    return {
+      remaining: this.rateLimitRemaining,
+      resetAt: this.rateLimitReset,
+      threshold: this.RATE_LIMIT_THRESHOLD,
+    };
   }
 }

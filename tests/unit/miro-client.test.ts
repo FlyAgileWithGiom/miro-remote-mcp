@@ -17,6 +17,31 @@ vi.mock('axios', () => ({
   },
 }));
 
+describe('MiroClient.getRateLimitStatus', () => {
+  let client: MiroClient;
+
+  beforeEach(() => {
+    client = new MiroClient({
+      accessToken: 'test-token',
+      refreshToken: 'test-refresh',
+      expiresAt: Date.now() + 3600000,
+    });
+  });
+
+  it('should return initial rate limit status', () => {
+    const status = client.getRateLimitStatus();
+
+    expect(status.remaining).toBe(100);
+    expect(status.threshold).toBe(10);
+    expect(typeof status.resetAt).toBe('number');
+  });
+
+  it('should have configurable threshold', () => {
+    const status = client.getRateLimitStatus();
+    expect(status.threshold).toBe(10);
+  });
+});
+
 describe('MiroClient.searchItems', () => {
   let client: MiroClient;
   const boardId = 'test-board-123';
