@@ -233,6 +233,18 @@ export const TOOL_DEFINITIONS = [
           type: 'string',
           description: 'Border width (default: "2")',
         },
+        font_family: {
+          type: 'string',
+          description: 'Font family (e.g., "open_sans", "arial", "noto_sans")',
+        },
+        font_size: {
+          type: 'string',
+          description: 'Font size as string (e.g., "14", "24", "36")',
+        },
+        text_color: {
+          type: 'string',
+          description: 'Text color in hex format (e.g., "#1a1a1a")',
+        },
         parent_id: {
           type: 'string',
           description: 'Optional ID of parent frame to place this shape inside',
@@ -266,6 +278,23 @@ export const TOOL_DEFINITIONS = [
         width: {
           type: 'number',
           description: 'Width in pixels (default: 300)',
+        },
+        font_family: {
+          type: 'string',
+          description: 'Font family (e.g., "open_sans", "arial", "noto_sans")',
+        },
+        font_size: {
+          type: 'string',
+          description: 'Font size as string (e.g., "14", "24", "36")',
+        },
+        text_color: {
+          type: 'string',
+          description: 'Text color in hex format (e.g., "#1a1a1a")',
+        },
+        text_align: {
+          type: 'string',
+          description: 'Text alignment (left, center, right)',
+          enum: ['left', 'center', 'right'],
         },
         parent_id: {
           type: 'string',
@@ -579,6 +608,9 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
           fillColor: args.fill_color,
           borderColor: args.border_color,
           borderWidth: args.border_width,
+          fontFamily: args.font_family,
+          fontSize: args.font_size,
+          textColor: args.text_color,
           parentId: args.parent_id,
         });
 
@@ -587,6 +619,10 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
           x: args.x,
           y: args.y,
           width: args.width,
+          fontFamily: args.font_family,
+          fontSize: args.font_size,
+          textColor: args.text_color,
+          textAlign: args.text_align,
           parentId: args.parent_id,
         });
 

@@ -289,6 +289,9 @@ export class MiroClient {
       fillColor?: string;
       borderColor?: string;
       borderWidth?: string;
+      fontFamily?: string;
+      fontSize?: string;
+      textColor?: string;
       parentId?: string;
     } = {}
   ): Promise<MiroItem> {
@@ -296,16 +299,23 @@ export class MiroClient {
     const fillColor = this.resolveColor(options.fillColor, 'light_blue');
     const borderColor = this.resolveColor(options.borderColor, 'blue');
 
+    const style: any = {
+      fillColor,
+      borderColor,
+      borderWidth: options.borderWidth || '2.0',
+    };
+
+    // Add font styling if provided
+    if (options.fontFamily) style.fontFamily = options.fontFamily;
+    if (options.fontSize) style.fontSize = options.fontSize;
+    if (options.textColor) style.color = options.textColor;
+
     const payload: any = {
       data: {
         content,
         shape: shapeType,
       },
-      style: {
-        fillColor,
-        borderColor,
-        borderWidth: options.borderWidth || '2.0',
-      },
+      style,
       position: {
         x: options.x || 0,
         y: options.y || 0,
@@ -334,6 +344,10 @@ export class MiroClient {
       x?: number;
       y?: number;
       width?: number;
+      fontFamily?: string;
+      fontSize?: string;
+      textColor?: string;
+      textAlign?: 'left' | 'center' | 'right';
       parentId?: string;
     } = {}
   ): Promise<MiroItem> {
@@ -350,6 +364,16 @@ export class MiroClient {
         width: options.width || 300,
       },
     };
+
+    // Add style if any font options provided
+    const style: any = {};
+    if (options.fontFamily) style.fontFamily = options.fontFamily;
+    if (options.fontSize) style.fontSize = options.fontSize;
+    if (options.textColor) style.color = options.textColor;
+    if (options.textAlign) style.textAlign = options.textAlign;
+    if (Object.keys(style).length > 0) {
+      payload.style = style;
+    }
 
     // Add parent reference if specified
     if (options.parentId) {
