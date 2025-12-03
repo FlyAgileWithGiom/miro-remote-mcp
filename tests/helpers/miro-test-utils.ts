@@ -47,7 +47,8 @@ export class MiroTestHelper {
     });
 
     this.client = new MiroClient(this.oauth);
-    this.testNamePrefix = `[MCP Test ${Date.now()}]`;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    this.testNamePrefix = `[TEST] MCP Integration - ${timestamp}`;
   }
 
   /**
@@ -161,8 +162,7 @@ export class MiroTestHelper {
   async listTestBoards(): Promise<MiroBoard[]> {
     const allBoards = await this.client.listBoards();
     return allBoards.filter(board =>
-      board.name.includes('[MCP Test') ||
-      board.name.includes('MCP Integration Test')
+      board.name.startsWith('[TEST]')
     );
   }
 
@@ -190,24 +190,50 @@ export class MiroTestHelper {
 }
 
 /**
- * Load test configuration from environment variables
- * Returns null if required env vars are missing (allows tests to skip gracefully)
+ * Load test configuration from production credentials
+ * Reuses existing Miro OAuth configuration and tokens
+ * Returns null if credentials unavailable (allows tests to skip gracefully)
  */
 export function loadTestConfig(): TestConfig | null {
-  const clientId = process.env.MIRO_TEST_CLIENT_ID;
-  const clientSecret = process.env.MIRO_TEST_CLIENT_SECRET;
-  const refreshToken = process.env.MIRO_TEST_REFRESH_TOKEN;
+  try {
+    // Import config and fs modules
+    const { getCredentials, CONFIG_PATHS } = require('../../src/config.js');
+    const fs = require('fs');
 
-  if (!clientId || !clientSecret || !refreshToken) {
+    // Load client ID/secret from production config
+    const creds = getCredentials();
+
+    // Try loading refresh token from token file
+    let refreshToken: string | undefined;
+    try {
+      const tokenPath = CONFIG_PATHS.tokensFile;
+      if (fs.existsSync(tokenPath)) {
+        const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf-8'));
+        refreshToken = tokenData.refresh_token;
+      }
+    } catch (error) {
+      // Token file doesn't exist or is invalid - try env var
+    }
+
+    // Fallback to environment variable
+    if (!refreshToken) {
+      refreshToken = process.env.MIRO_REFRESH_TOKEN;
+    }
+
+    // Return null if any required credential is missing
+    if (!creds.clientId || !creds.clientSecret || !refreshToken) {
+      return null;
+    }
+
+    return {
+      clientId: creds.clientId,
+      clientSecret: creds.clientSecret,
+      refreshToken,
+    };
+  } catch (error) {
+    // Configuration loading failed - tests will skip
     return null;
   }
-
-  return {
-    clientId,
-    clientSecret,
-    refreshToken,
-    redirectUri: process.env.MIRO_TEST_REDIRECT_URI,
-  };
 }
 
 /**

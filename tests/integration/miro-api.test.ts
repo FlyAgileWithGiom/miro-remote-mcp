@@ -4,14 +4,13 @@
  * IMPORTANT: These tests use the REAL Miro API, not mocks.
  * They validate actual API integration, OAuth token management, and error handling.
  *
- * Prerequisites:
- * 1. Create a test Miro account (separate from production)
- * 2. Create a test OAuth app at https://miro.com/app/settings/user-profile/apps
- * 3. Copy .env.test.example to .env.test and fill in credentials
- * 4. Run `npm run oauth` to generate refresh token
- * 5. Copy refresh_token from tokens.json to MIRO_TEST_REFRESH_TOKEN in .env.test
+ * Setup:
+ * - Tests reuse your production Miro credentials (MIRO_CLIENT_ID_B64, MIRO_CLIENT_SECRET_B64)
+ * - Refresh token loaded from /data/tokens.json or MIRO_REFRESH_TOKEN env var
+ * - Run `npm run oauth` first if you haven't authenticated yet
+ * - Tests create boards with [TEST] prefix and attempt cleanup
  *
- * Tests will skip gracefully if credentials are missing.
+ * Tests skip gracefully if credentials are not configured.
  */
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { config } from 'dotenv';
@@ -19,17 +18,14 @@ import { MiroTestHelper, loadTestConfig, sleep } from '../helpers/miro-test-util
 import { MiroClient, MiroBoard, MiroItem } from '../../src/miro-client.js';
 import { OAuth2Manager } from '../../src/oauth.js';
 
-// Load test environment variables
-config({ path: '.env.test' });
-
-// Test configuration
+// Test configuration (uses production credentials)
 const testConfig = loadTestConfig();
 const TESTS_ENABLED = testConfig !== null;
 
 // Skip message for when credentials are missing
 const skipMessage = TESTS_ENABLED
   ? undefined
-  : 'Skipping: MIRO_TEST_* env vars not set (see .env.test.example)';
+  : 'Skipping: Miro credentials not available (run: npm run oauth)';
 
 describe('Miro API Integration Tests', () => {
   let helper: MiroTestHelper;
@@ -39,7 +35,7 @@ describe('Miro API Integration Tests', () => {
   beforeAll(() => {
     if (!TESTS_ENABLED) {
       console.warn('\n⚠️  Miro API integration tests skipped - missing credentials');
-      console.warn('   Copy .env.test.example to .env.test and configure test credentials\n');
+      console.warn('   Run: npm run oauth (to authenticate with Miro)\n');
       return;
     }
 
