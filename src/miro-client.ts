@@ -570,6 +570,23 @@ export class MiroClient {
     return response.data;
   }
 
+  // List connectors - uses dedicated /connectors endpoint (not /items)
+  async listConnectors(boardId: string): Promise<MiroItem[]> {
+    const connectors: MiroItem[] = [];
+    let cursor: string | undefined;
+
+    do {
+      const params: Record<string, string> = { limit: '50' };
+      if (cursor) params.cursor = cursor;
+
+      const response = await this.client.get(`/boards/${boardId}/connectors`, { params });
+      connectors.push(...(response.data.data || []));
+      cursor = response.data.cursor;
+    } while (cursor);
+
+    return connectors;
+  }
+
   // Board Sync - Retrieve complete board snapshot in single request
   async syncBoard(boardId: string): Promise<{
     metadata: {
@@ -587,13 +604,14 @@ export class MiroClient {
     };
   }> {
     // Fetch board metadata and all item types in parallel
+    // Note: connectors use dedicated endpoint, not /items
     const [board, frames, shapes, stickyNotes, textItems, connectors] = await Promise.all([
       this.getBoard(boardId),
       this.listItems(boardId, 'frame'),
       this.listItems(boardId, 'shape'),
       this.listItems(boardId, 'sticky_note'),
       this.listItems(boardId, 'text'),
-      this.listItems(boardId, 'connector'),
+      this.listConnectors(boardId),
     ]);
 
     const itemCount = frames.length + shapes.length + stickyNotes.length + textItems.length + connectors.length;

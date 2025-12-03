@@ -85,8 +85,8 @@ export const TOOL_DEFINITIONS = [
         },
         type: {
           type: 'string',
-          description: 'Optional item type filter (frame, sticky_note, shape, text, connector)',
-          enum: ['frame', 'sticky_note', 'shape', 'text', 'connector'],
+          description: 'Optional item type filter (frame, sticky_note, shape, text)',
+          enum: ['frame', 'sticky_note', 'shape', 'text'],
         },
       },
       required: ['board_id'],
@@ -109,7 +109,7 @@ export const TOOL_DEFINITIONS = [
         type: {
           type: 'string',
           description: 'Optional item type filter',
-          enum: ['frame', 'sticky_note', 'shape', 'text', 'connector'],
+          enum: ['frame', 'sticky_note', 'shape', 'text'],
         },
       },
       required: ['board_id', 'query'],
