@@ -77,8 +77,10 @@ export class MiroClient {
   // Performance optimizations: Caching
   private boardListCache: { data: MiroBoard[]; expiresAt: number } | null = null;
   private boardCache = new Map<string, { data: MiroBoard; expiresAt: number }>();
+  private itemCache = new Map<string, { data: MiroItem[]; expiresAt: number }>();
   private cachedToken: string | null = null;
   private tokenExpiresAt: number = 0;
+  private readonly ITEM_CACHE_TTL = 60 * 1000; // 60 seconds
 
   /**
    * Helper method to resolve color names to hex codes
@@ -210,6 +212,16 @@ export class MiroClient {
 
   // Item Operations
   async listItems(boardId: string, type?: string): Promise<MiroItem[]> {
+    const now = Date.now();
+    const cacheKey = `${boardId}:${type || 'all'}`;
+
+    // Return cached data if still valid
+    const cached = this.itemCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+      return cached.data;
+    }
+
+    // Fetch fresh data
     const items: MiroItem[] = [];
     let cursor: string | undefined;
 
@@ -223,7 +235,22 @@ export class MiroClient {
       cursor = response.data.cursor;
     } while (cursor);
 
+    // Cache for configured TTL
+    this.itemCache.set(cacheKey, {
+      data: items,
+      expiresAt: now + this.ITEM_CACHE_TTL,
+    });
+
     return items;
+  }
+
+  private invalidateItemCache(boardId: string): void {
+    // Remove all cache entries for this board (all type filters)
+    for (const key of this.itemCache.keys()) {
+      if (key.startsWith(`${boardId}:`)) {
+        this.itemCache.delete(key);
+      }
+    }
   }
 
   async searchItems(boardId: string, query: string, type?: string): Promise<MiroItem[]> {
@@ -244,11 +271,13 @@ export class MiroClient {
 
   async updateItem(boardId: string, itemId: string, updates: Partial<MiroItem>): Promise<MiroItem> {
     const response = await this.client.patch(`/boards/${boardId}/items/${itemId}`, updates);
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
   async deleteItem(boardId: string, itemId: string): Promise<void> {
     await this.client.delete(`/boards/${boardId}/items/${itemId}`);
+    this.invalidateItemCache(boardId);
   }
 
   /**
@@ -311,6 +340,9 @@ export class MiroClient {
       }
     });
 
+    // Invalidate cache after batch updates
+    this.invalidateItemCache(boardId);
+
     return {
       total: updates.length,
       succeeded,
@@ -360,6 +392,7 @@ export class MiroClient {
     }
 
     const response = await this.client.post(`/boards/${boardId}/sticky_notes`, payload);
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
@@ -420,6 +453,7 @@ export class MiroClient {
     }
 
     const response = await this.client.post(`/boards/${boardId}/shapes`, payload);
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
@@ -468,6 +502,7 @@ export class MiroClient {
     }
 
     const response = await this.client.post(`/boards/${boardId}/texts`, payload);
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
@@ -504,6 +539,7 @@ export class MiroClient {
         height: options.height || 800,
       },
     });
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
@@ -546,6 +582,7 @@ export class MiroClient {
     }
 
     const response = await this.client.post(`/boards/${boardId}/connectors`, body);
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
@@ -567,6 +604,7 @@ export class MiroClient {
     const response = await this.client.patch(`/boards/${boardId}/connectors/${connectorId}`, {
       style,
     });
+    this.invalidateItemCache(boardId);
     return response.data;
   }
 
