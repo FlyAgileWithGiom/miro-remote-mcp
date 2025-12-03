@@ -116,8 +116,12 @@ async function initializeOAuth(
     try {
       const data = JSON.parse(readFileSync(TOKEN_FILE, 'utf-8'));
       if (data.access_token) {
-        await oauth.setTokens(data.access_token, data.refresh_token || '', 3600);
-        console.log(`[OAuth] Loaded tokens from ${TOKEN_FILE}`);
+        // Use stored expires_at if available, otherwise assume expired to trigger refresh
+        const expiresIn = data.expires_at
+          ? Math.max(0, Math.floor((data.expires_at - Date.now()) / 1000))
+          : 0; // Expired - will trigger refresh on first use
+        await oauth.setTokens(data.access_token, data.refresh_token || '', expiresIn);
+        console.log(`[OAuth] Loaded tokens from ${TOKEN_FILE} (expires in ${expiresIn}s)`);
         return oauth;
       }
     } catch (e) {
