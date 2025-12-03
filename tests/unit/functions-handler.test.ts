@@ -129,6 +129,32 @@ describe('functions-handler', () => {
       expect(body.service).toBe('miro-mcp');
       expect(body.tools).toBeGreaterThan(0);
     });
+
+    it('returns authenticated: true when token file exists', async () => {
+      mocks.mockExistsSync.mockReturnValue(true);
+
+      const event = healthCheckEvent();
+      const context = createContext();
+
+      const response = await handler(event, context);
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.authenticated).toBe(true);
+    });
+
+    it('returns authenticated: false when token file does not exist', async () => {
+      mocks.mockExistsSync.mockReturnValue(false);
+
+      const event = healthCheckEvent();
+      const context = createContext();
+
+      const response = await handler(event, context);
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.authenticated).toBe(false);
+    });
   });
 
   describe('JSON-RPC Routing', () => {
