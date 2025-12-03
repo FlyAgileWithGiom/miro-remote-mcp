@@ -232,7 +232,48 @@ class MiroFunctionHandler {
       }
 
       if (method === 'tools/call') {
-        // Initialize Miro client if needed
+        const toolName = (params as { name?: string })?.name;
+
+        // get_auth_status can run without authentication
+        if (toolName === 'get_auth_status') {
+          const tokensExist = existsSync(TOKEN_FILE);
+          const authUrl = `${BASE_URI}/oauth/authorize`;
+
+          if (tokensExist) {
+            // Verify tokens are actually valid by trying to initialize
+            const success = await this.initializeMiroClient();
+            if (success) {
+              return apiResponse(200, jsonRpcSuccess(id, {
+                content: [{ type: 'text', text: JSON.stringify({
+                  status: 'authorized',
+                  tokensExist: true,
+                  message: 'Miro account is authorized and ready to use.',
+                }, null, 2) }],
+              }));
+            }
+            // Tokens exist but are invalid/expired
+            return apiResponse(200, jsonRpcSuccess(id, {
+              content: [{ type: 'text', text: JSON.stringify({
+                status: 'not_authorized',
+                tokensExist: true,
+                message: 'Miro tokens exist but are invalid or expired. Please reauthorize.',
+                authorizeUrl: authUrl,
+              }, null, 2) }],
+            }));
+          }
+
+          // No tokens at all
+          return apiResponse(200, jsonRpcSuccess(id, {
+            content: [{ type: 'text', text: JSON.stringify({
+              status: 'not_authorized',
+              tokensExist: false,
+              message: 'Miro account is not authorized. No tokens found.',
+              authorizeUrl: authUrl,
+            }, null, 2) }],
+          }));
+        }
+
+        // Initialize Miro client if needed (for all other tools)
         if (!this.initialized) {
           const success = await this.initializeMiroClient();
           if (!success) {
@@ -243,8 +284,6 @@ class MiroFunctionHandler {
             });
           }
         }
-
-        const toolName = (params as { name?: string })?.name;
         const toolArgs = (params as { arguments?: Record<string, unknown> })?.arguments || {};
 
         if (!toolName) {

@@ -59,7 +59,18 @@
 
 ## In Progress
 
-(No items currently in progress)
+- [ ] OPS-TOKEN-PERSIST: Tokens persist across deployments without re-authentication
+
+**Context**: Currently, tokens are lost after each deployment requiring manual re-auth via OAuth flow.
+
+**Investigation (2025-12-03)**:
+- Added deployment diagnostics to check volume state before/after deploy
+- Hypotheses: volume permissions (container runs as uid 1001), volume name mismatch
+
+**Acceptance Criteria**:
+- After deployment, existing tokens remain valid
+- No re-authentication required unless tokens genuinely expired
+- Deployment logs show token file status for debugging
 
 ## Recently Completed (2025-12-02)
 

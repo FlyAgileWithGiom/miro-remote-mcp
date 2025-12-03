@@ -133,13 +133,21 @@ jobs:
           set -e
           cd /opt/miro-mcp
 
-          # Ensure data directory exists
-          mkdir -p data
+          # Debug: Check existing volumes and tokens BEFORE deployment
+          echo "=== Pre-deployment token status ==="
+          VOLUME_NAME="miro-mcp_miro-tokens"
+          if docker volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+            echo "Volume $VOLUME_NAME exists"
+            # Check if tokens file exists in volume
+            docker run --rm -v "$VOLUME_NAME:/data" alpine ls -la /data/ 2>/dev/null || echo "Volume empty or inaccessible"
+          else
+            echo "Volume $VOLUME_NAME does NOT exist (will be created)"
+          fi
 
           # Ensure ingress network exists
           docker network create ingress 2>/dev/null || true
 
-          # Stop old containers
+          # Stop old containers (preserves volumes)
           docker compose down 2>/dev/null || true
 
           # Start with registry image
@@ -148,8 +156,14 @@ jobs:
           # Wait for container to start
           sleep 10
 
-          echo "Container status:"
+          echo ""
+          echo "=== Post-deployment status ==="
           docker compose ps
+
+          # Check token file in running container
+          echo ""
+          echo "=== Token file status ==="
+          docker compose exec -T miro-mcp ls -la /data/ 2>/dev/null || echo "Cannot access /data in container"
           REMOTE_EOF
 
       - name: Save deployment log
