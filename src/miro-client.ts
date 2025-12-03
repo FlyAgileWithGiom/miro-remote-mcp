@@ -232,6 +232,74 @@ export class MiroClient {
     await this.client.delete(`/boards/${boardId}/items/${itemId}`);
   }
 
+  /**
+   * Batch update multiple items in parallel
+   * @param boardId Board ID
+   * @param updates Array of updates with item_id and update data
+   * @returns Results for each item with success/error status
+   */
+  async batchUpdateItems(
+    boardId: string,
+    updates: Array<{ id: string; position?: any; style?: any; data?: any; geometry?: any }>
+  ): Promise<{
+    total: number;
+    succeeded: number;
+    failed: number;
+    results: Array<{
+      id: string;
+      status: 'success' | 'error';
+      item?: MiroItem;
+      error?: string;
+    }>;
+  }> {
+    // Validate batch size
+    const MAX_BATCH_SIZE = 50;
+    if (updates.length > MAX_BATCH_SIZE) {
+      throw new Error(`Batch size exceeds maximum of ${MAX_BATCH_SIZE} items`);
+    }
+
+    // Execute all updates in parallel using Promise.allSettled
+    const updatePromises = updates.map(async (update) => {
+      const { id, ...updateData } = update;
+      return {
+        id,
+        result: await this.updateItem(boardId, id, updateData),
+      };
+    });
+
+    const results = await Promise.allSettled(updatePromises);
+
+    // Process results
+    let succeeded = 0;
+    let failed = 0;
+    const processedResults = results.map((result, index) => {
+      const updateId = updates[index].id;
+
+      if (result.status === 'fulfilled') {
+        succeeded++;
+        return {
+          id: updateId,
+          status: 'success' as const,
+          item: result.value.result,
+        };
+      } else {
+        failed++;
+        return {
+          id: updateId,
+          status: 'error' as const,
+          error: result.reason?.message || 'Unknown error',
+        };
+      }
+    });
+
+    return {
+      total: updates.length,
+      succeeded,
+      failed,
+      results: processedResults,
+    };
+  }
+
   // Sticky Notes
   async createStickyNote(
     boardId: string,
@@ -481,6 +549,51 @@ export class MiroClient {
       style,
     });
     return response.data;
+  }
+
+  // Board Sync - Retrieve complete board snapshot in single request
+  async syncBoard(boardId: string): Promise<{
+    metadata: {
+      board_id: string;
+      board_name: string;
+      modifiedAt: string;
+      itemCount: number;
+    };
+    items: {
+      frames: MiroItem[];
+      shapes: MiroItem[];
+      sticky_notes: MiroItem[];
+      text: MiroItem[];
+      connectors: MiroItem[];
+    };
+  }> {
+    // Fetch board metadata and all item types in parallel
+    const [board, frames, shapes, stickyNotes, textItems, connectors] = await Promise.all([
+      this.getBoard(boardId),
+      this.listItems(boardId, 'frame'),
+      this.listItems(boardId, 'shape'),
+      this.listItems(boardId, 'sticky_note'),
+      this.listItems(boardId, 'text'),
+      this.listItems(boardId, 'connector'),
+    ]);
+
+    const itemCount = frames.length + shapes.length + stickyNotes.length + textItems.length + connectors.length;
+
+    return {
+      metadata: {
+        board_id: board.id,
+        board_name: board.name,
+        modifiedAt: board.modifiedAt,
+        itemCount,
+      },
+      items: {
+        frames,
+        shapes,
+        sticky_notes: stickyNotes,
+        text: textItems,
+        connectors,
+      },
+    };
   }
 
   // Verify authentication by listing boards

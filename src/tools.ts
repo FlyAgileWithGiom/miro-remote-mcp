@@ -57,6 +57,20 @@ export const TOOL_DEFINITIONS = [
       required: ['name'],
     },
   },
+  {
+    name: 'sync_board',
+    description: 'Retrieve complete board snapshot in single request. Returns all items organized by type with board metadata.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        board_id: {
+          type: 'string',
+          description: 'The ID of the board to sync',
+        },
+      },
+      required: ['board_id'],
+    },
+  },
 
   // Item Operations
   {
@@ -134,6 +148,59 @@ export const TOOL_DEFINITIONS = [
         },
       },
       required: ['board_id', 'item_id'],
+    },
+  },
+  {
+    name: 'batch_update_items',
+    description: 'Update multiple items atomically in parallel. Reduces latency for bulk position/style updates. Individual failures do not block other updates.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        board_id: {
+          type: 'string',
+          description: 'The ID of the board',
+        },
+        updates: {
+          type: 'array',
+          description: 'Array of item updates (max 50 items)',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'Item ID to update',
+              },
+              position: {
+                type: 'object',
+                description: 'Position update (x, y coordinates)',
+                properties: {
+                  x: { type: 'number' },
+                  y: { type: 'number' },
+                },
+              },
+              style: {
+                type: 'object',
+                description: 'Style update (fillColor, borderColor, etc.)',
+              },
+              data: {
+                type: 'object',
+                description: 'Data update (content, etc.)',
+              },
+              geometry: {
+                type: 'object',
+                description: 'Geometry update (width, height, rotation)',
+                properties: {
+                  width: { type: 'number' },
+                  height: { type: 'number' },
+                  rotation: { type: 'number' },
+                },
+              },
+            },
+            required: ['id'],
+          },
+        },
+      },
+      required: ['board_id', 'updates'],
     },
   },
 
@@ -573,6 +640,9 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
       case 'create_board':
         return await miroClient.createBoard(args.name, args.description);
 
+      case 'sync_board':
+        return await miroClient.syncBoard(args.board_id);
+
       // Item Operations
       case 'list_items':
         return await miroClient.listItems(args.board_id, args.type);
@@ -586,6 +656,9 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
       case 'delete_item':
         await miroClient.deleteItem(args.board_id, args.item_id);
         return { success: true, message: 'Item deleted successfully' };
+
+      case 'batch_update_items':
+        return await miroClient.batchUpdateItems(args.board_id, args.updates);
 
       // Item Creation
       case 'create_sticky_note':
