@@ -226,6 +226,17 @@ export class MiroClient {
     return items;
   }
 
+  async searchItems(boardId: string, query: string, type?: string): Promise<MiroItem[]> {
+    const items = await this.listItems(boardId, type);
+    const lowerQuery = query.toLowerCase();
+
+    return items.filter((item) => {
+      const content = item.data?.content?.toLowerCase() || '';
+      const title = item.data?.title?.toLowerCase() || '';
+      return content.includes(lowerQuery) || title.includes(lowerQuery);
+    });
+  }
+
   async getItem(boardId: string, itemId: string): Promise<MiroItem> {
     const response = await this.client.get(`/boards/${boardId}/items/${itemId}`);
     return response.data;
