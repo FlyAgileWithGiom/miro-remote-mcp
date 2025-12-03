@@ -7,11 +7,8 @@
 - [ ] CAP-BATCH-UPDATE: Agent AI updates multiple board items atomically
 
 ### Medium: Quality & Performance
-- [ ] TECH6: Agent AI responds instantly for repeated board searches (caching)
 - [ ] TECH7: System maintains stable memory footprint under sustained high usage
-- [ ] TECH-RATE-LIMITS: System queues gracefully when hitting Miro API rate limits
 - [ ] TECH-PAGINATION: System prevents unbounded searches on large boards
-- [ ] TECH2: Developer modifies batch item creation logic in single location
 - [ ] TECH3: Developer extends auth logic with full TypeScript type safety
 
 ### Medium: Feature Capabilities
@@ -43,6 +40,11 @@
 - [x] TECH1: Developer generates tree diagrams at scale without timeout (30s → 2s) ✅ 2025-12-03
 - [x] TECH4: Developer works with clean production builds (no duplicate outputs) ✅ 2025-12-03
 - [x] TECH5: Developer navigates source code without debug/test pollution ✅ 2025-12-03
+
+### Phase 3: Quality & Performance (2025-12-03)
+- [x] TECH6: Agent AI responds instantly for repeated board searches (5000ms → 0ms) ✅ 2025-12-03
+- [x] TECH2: Developer modifies batch schemas in single location (DRY) ✅ 2025-12-03
+- [x] TECH-RATE-LIMITS: System queues gracefully when hitting rate limits ✅ 2025-12-03
 
 ### Previous Deliveries
 - [x] TOOL1: Agent AI creates hierarchical tree diagrams on Miro ✅ 2025-11-26
