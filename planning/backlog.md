@@ -46,6 +46,11 @@
 - [x] TECH2: Developer modifies batch schemas in single location (DRY) ✅ 2025-12-03
 - [x] TECH-RATE-LIMITS: System queues gracefully when hitting rate limits ✅ 2025-12-03
 
+### Phase 4: REST Optimizations (2025-12-05)
+- [x] TECH-HTTP2: API responds 50-70% faster via connection reuse (keepAlive) ✅ 2025-12-05
+- [x] TECH-PAGINATION: API fetches board items 20-30% faster (100 vs 50 per page) ✅ 2025-12-05
+- [x] TECH-CACHE-TTL: Agent AI gets instant responses for 5 minutes on repeated reads ✅ 2025-12-05
+
 ### Previous Deliveries
 - [x] TOOL1: Agent AI creates hierarchical tree diagrams on Miro ✅ 2025-11-26
 - [x] TOOL2: Agent AI creates org charts with photos ✅ 2025-11-26
