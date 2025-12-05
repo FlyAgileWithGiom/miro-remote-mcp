@@ -91,7 +91,6 @@ export class MiroClient {
   private itemCache = new Map<string, { data: MiroItem[]; expiresAt: number }>();
   private cachedToken: string | null = null;
   private tokenExpiresAt: number = 0;
-  private readonly ITEM_CACHE_TTL = 60 * 1000; // 60 seconds
 
   /**
    * Helper method to resolve color names to hex codes
@@ -269,7 +268,7 @@ export class MiroClient {
     // Cache for configured TTL
     this.itemCache.set(cacheKey, {
       data: items,
-      expiresAt: now + this.ITEM_CACHE_TTL,
+      expiresAt: now + CACHE_CONFIG.ITEM_TTL_MS,
     });
 
     return items;

@@ -29,6 +29,8 @@ export const RATE_LIMIT_CONFIG = {
 export const CACHE_CONFIG = {
   // Board list and metadata cache TTL (5 minutes)
   BOARD_TTL_MS: 5 * 60 * 1000,
+  // Item list cache TTL (5 minutes for consistent agent experience)
+  ITEM_TTL_MS: 5 * 60 * 1000,
 };
 
 // Pagination Configuration
