@@ -41,16 +41,14 @@ jobs:
       - name: Get version and image tag
         id: version
         run: |
-          if [ "${{ github.ref_type }}" == "tag" ]; then
-            VERSION="${{ github.ref_name }}"
+          VERSION="${{ inputs.version }}"
+
+          if [ -n "$VERSION" ]; then
             # Strip dev- or v prefix if present (dev-1.2.3 -> 1.2.3, v1.2.3 -> 1.2.3)
             IMAGE_TAG="${VERSION#dev-}"
             IMAGE_TAG="${IMAGE_TAG#v}"
-          elif [ -n "${{ inputs.version }}" ]; then
-            VERSION="${{ inputs.version }}"
-            IMAGE_TAG="${VERSION}"
           else
-            # For dev deployments from main branch
+            # Fallback for dev deployments without explicit version
             VERSION="$(echo ${{ github.sha }} | cut -c1-7)"
             IMAGE_TAG="${{ inputs.environment }}"
           fi

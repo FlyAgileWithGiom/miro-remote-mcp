@@ -1,9 +1,13 @@
 name: Deploy to Development
 
 on:
-  push:
-    tags:
-      - 'dev-*'
+  # Trigger after CI completes successfully on dev-* tags
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches-ignore:
+      - '**'  # Ignore branch runs, only match tag runs
+    # Note: GitHub matches tags against branches-ignore, so we filter in the job condition
 
   workflow_dispatch:
     inputs:
@@ -14,10 +18,16 @@ on:
 
 jobs:
   deploy:
+    # Only run if CI succeeded AND triggered by dev-* tag (or manual dispatch)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'dev-'))
     uses: ./.github/workflows/deploy.yml
     with:
       environment: dev
-      version: ${{ github.event.inputs.version || '' }}
+      # For workflow_run: use the tag from the CI run; for manual: use input or default to 'dev'
+      version: ${{ github.event.workflow_run.head_branch || github.event.inputs.version || 'dev' }}
       log_retention_days: 14
       BASE_URI: ${{ vars.DEV_BASE_URI }}
     secrets:

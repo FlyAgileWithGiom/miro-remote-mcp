@@ -1,9 +1,12 @@
 name: Deploy to Production
 
 on:
-  push:
-    tags:
-      - 'v*'
+  # Trigger after CI completes successfully on v* tags
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches-ignore:
+      - '**'  # Ignore branch runs, only match tag runs
 
   workflow_dispatch:
     inputs:
@@ -14,10 +17,16 @@ on:
 
 jobs:
   deploy:
+    # Only run if CI succeeded AND triggered by v* tag (or manual dispatch)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'v'))
     uses: ./.github/workflows/deploy.yml
     with:
       environment: production
-      version: ${{ github.event.inputs.version || '' }}
+      # For workflow_run: use the tag from the CI run; for manual: use input or default to 'latest'
+      version: ${{ github.event.workflow_run.head_branch || github.event.inputs.version || 'latest' }}
       log_retention_days: 30
       BASE_URI: ${{ vars.PROD_BASE_URI }}
     secrets:
