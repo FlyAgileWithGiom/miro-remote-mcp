@@ -2,8 +2,6 @@ name: Deploy to Development
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'dev-*'
 
