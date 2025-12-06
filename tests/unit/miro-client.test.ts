@@ -362,4 +362,213 @@ describe('MiroClient Item Format Filtering', () => {
       expect(result.items.connectors[0].position).toEqual({ x: 100, y: 200 });
     });
   });
+
+  describe('syncBoard with TOON output format', () => {
+    it('should return compact TOON text format when output_format is toon', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      // Mock different endpoints with various item types
+      mockAxiosClient.get.mockImplementation((url: string, config?: any) => {
+        if (url.includes('/boards/')) {
+          if (url.includes('/items') && config?.params?.type === 'frame') {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'frame1',
+                    type: 'frame',
+                    position: { x: 0, y: 0 },
+                    geometry: { width: 800, height: 600 },
+                    data: { title: 'Test Frame' },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else if (url.includes('/items') && config?.params?.type === 'sticky_note') {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'sticky1',
+                    type: 'sticky_note',
+                    position: { x: 100, y: 200 },
+                    geometry: { width: 80, height: 100 },
+                    style: { fillColor: 'light_yellow' },
+                    data: { content: 'Hello world' },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else if (url.includes('/items') && config?.params?.type === 'shape') {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'shape1',
+                    type: 'shape',
+                    position: { x: 300, y: 300 },
+                    geometry: { width: 50, height: 50 },
+                    data: { shape: 'rectangle', content: 'Label' },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else if (url.includes('/items') && config?.params?.type === 'text') {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'text1',
+                    type: 'text',
+                    position: { x: 400, y: 400 },
+                    geometry: { width: 200 },
+                    data: { content: 'Some content' },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else if (url.includes('/connectors')) {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'conn1',
+                    type: 'connector',
+                    data: {
+                      startItem: { id: 'sticky1' },
+                      endItem: { id: 'shape1' },
+                      endStrokeCap: 'stealth',
+                    },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else {
+            // Board metadata
+            return Promise.resolve({
+              data: {
+                id: boardId,
+                name: 'Test Board',
+                modifiedAt: '2024-01-01T00:00:00Z',
+              },
+              headers: {},
+            });
+          }
+        }
+        return Promise.reject(new Error('Unknown endpoint'));
+      });
+
+      const result = await client.syncBoard(boardId, 'standard', 'toon');
+
+      // Result should be a string in TOON format
+      expect(typeof result).toBe('string');
+
+      const lines = (result as string).split('\n');
+
+      // Check header line
+      expect(lines[0]).toMatch(/^# board:.*"Test Board" mod:2024-01-01T00:00:00Z count:5$/);
+
+      // Check sections exist
+      expect(result).toContain('## frames (1)');
+      expect(result).toContain('## sticky_notes (1)');
+      expect(result).toContain('## shapes (1)');
+      expect(result).toContain('## text (1)');
+      expect(result).toContain('## connectors (1)');
+
+      // Check item formats
+      expect(result).toContain('frame|frame1|0,0|800x600|Test Frame');
+      expect(result).toContain('sticky_note|sticky1|100,200|80x100|light_yellow|Hello world');
+      expect(result).toContain('shape|shape1|300,300|50x50|rectangle|Label');
+      expect(result).toContain('text|text1|400,400|200x0|Some content');
+      expect(result).toContain('connector|conn1|||sticky1->shape1|stealth');
+    });
+
+    it('should handle edge cases in TOON format', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockImplementation((url: string, config?: any) => {
+        if (url.includes('/boards/')) {
+          if (url.includes('/items') && config?.params?.type === 'sticky_note') {
+            return Promise.resolve({
+              data: {
+                data: [
+                  {
+                    id: 'sticky1',
+                    type: 'sticky_note',
+                    position: { x: 100, y: 200 },
+                    geometry: { width: 80, height: 100 },
+                    style: { fillColor: 'light_yellow' },
+                    data: { content: 'Line 1\nLine 2|with pipe' },
+                  },
+                ],
+                cursor: undefined,
+              },
+              headers: {},
+            });
+          } else if (url.includes('/items') && config?.params?.type) {
+            // Other item types return empty
+            return Promise.resolve({ data: { data: [], cursor: undefined }, headers: {} });
+          } else if (url.includes('/connectors')) {
+            return Promise.resolve({ data: { data: [], cursor: undefined }, headers: {} });
+          } else {
+            return Promise.resolve({
+              data: {
+                id: boardId,
+                name: 'Test Board',
+                modifiedAt: '2024-01-01T00:00:00Z',
+              },
+              headers: {},
+            });
+          }
+        }
+        return Promise.reject(new Error('Unknown endpoint'));
+      });
+
+      const result = await client.syncBoard(boardId, 'minimal', 'toon');
+
+      // Check that newlines and pipes are escaped
+      expect(result).toContain('Line 1\\nLine 2\\|with pipe');
+    });
+
+    it('should return JSON format by default', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockImplementation((url: string) => {
+        if (url.includes('/boards/')) {
+          if (url.endsWith('/items')) {
+            return Promise.resolve({ data: { data: [], cursor: undefined }, headers: {} });
+          } else if (url.endsWith('/connectors')) {
+            return Promise.resolve({ data: { data: [], cursor: undefined }, headers: {} });
+          } else {
+            return Promise.resolve({
+              data: {
+                id: boardId,
+                name: 'Test Board',
+                modifiedAt: '2024-01-01T00:00:00Z',
+              },
+              headers: {},
+            });
+          }
+        }
+        return Promise.reject(new Error('Unknown endpoint'));
+      });
+
+      const result = await client.syncBoard(boardId, 'minimal');
+
+      // Result should be an object (JSON), not a string
+      expect(typeof result).toBe('object');
+      expect(result).toHaveProperty('metadata');
+      expect(result).toHaveProperty('items');
+    });
+  });
 });

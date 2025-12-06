@@ -70,6 +70,7 @@ export interface MiroItem {
 }
 
 export type ItemFormat = 'minimal' | 'standard' | 'full';
+export type OutputFormat = 'json' | 'toon';
 
 /**
  * Filter item fields based on format level
@@ -113,6 +114,141 @@ function filterItem(item: MiroItem, format: ItemFormat): Partial<MiroItem> {
   }
 
   return filtered;
+}
+
+/**
+ * Serialize item to TOON format (compact text-based representation)
+ * Format: type|id|position|dimensions|type-specific fields
+ */
+function itemToToon(item: MiroItem): string {
+  const parts: string[] = [];
+
+  // Always include type and id
+  parts.push(item.type, item.id);
+
+  // Position (x,y)
+  if (item.position) {
+    parts.push(`${item.position.x},${item.position.y}`);
+  } else {
+    parts.push('');
+  }
+
+  // Dimensions (width x height)
+  if (item.geometry?.width || item.geometry?.height) {
+    const w = item.geometry.width ?? 0;
+    const h = item.geometry.height ?? 0;
+    parts.push(`${w}x${h}`);
+  } else {
+    parts.push('');
+  }
+
+  // Type-specific fields
+  switch (item.type) {
+    case 'sticky_note':
+      // Color from style
+      const color = item.style?.fillColor ?? '';
+      parts.push(color);
+      // Content from data
+      const content = item.data?.content ? item.data.content.replace(/\n/g, '\\n').replace(/\|/g, '\\|') : '';
+      parts.push(content);
+      break;
+
+    case 'shape':
+      // Shape type and content
+      const shapeType = item.data?.shape ?? '';
+      parts.push(shapeType);
+      const shapeContent = item.data?.content ? item.data.content.replace(/\n/g, '\\n').replace(/\|/g, '\\|') : '';
+      parts.push(shapeContent);
+      break;
+
+    case 'text':
+      // Just content for text items
+      const textContent = item.data?.content ? item.data.content.replace(/\n/g, '\\n').replace(/\|/g, '\\|') : '';
+      parts.push(textContent);
+      break;
+
+    case 'frame':
+      // Frame title
+      const title = item.data?.title ? item.data.title.replace(/\n/g, '\\n').replace(/\|/g, '\\|') : '';
+      parts.push(title);
+      break;
+
+    case 'connector':
+      // Start and end item IDs
+      const startId = item.data?.startItem?.id ?? '';
+      const endId = item.data?.endItem?.id ?? '';
+      const connection = `${startId}->${endId}`;
+      parts.push(connection);
+      // End cap style
+      const endCap = item.data?.endStrokeCap ?? '';
+      parts.push(endCap);
+      break;
+  }
+
+  return parts.join('|');
+}
+
+/**
+ * Convert sync_board result to TOON format
+ */
+function syncResultToToon(result: {
+  metadata: {
+    board_id: string;
+    board_name: string;
+    modifiedAt: string;
+    itemCount: number;
+  };
+  items: {
+    frames: MiroItem[];
+    shapes: MiroItem[];
+    sticky_notes: MiroItem[];
+    text: MiroItem[];
+    connectors: MiroItem[];
+  };
+}): string {
+  const lines: string[] = [];
+
+  // Header line with board metadata
+  const { board_id, board_name, modifiedAt, itemCount } = result.metadata;
+  lines.push(`# board:${board_id} "${board_name}" mod:${modifiedAt} count:${itemCount}`);
+  lines.push('');
+
+  // Frames section
+  if (result.items.frames.length > 0) {
+    lines.push(`## frames (${result.items.frames.length})`);
+    result.items.frames.forEach(item => lines.push(itemToToon(item)));
+    lines.push('');
+  }
+
+  // Sticky notes section
+  if (result.items.sticky_notes.length > 0) {
+    lines.push(`## sticky_notes (${result.items.sticky_notes.length})`);
+    result.items.sticky_notes.forEach(item => lines.push(itemToToon(item)));
+    lines.push('');
+  }
+
+  // Shapes section
+  if (result.items.shapes.length > 0) {
+    lines.push(`## shapes (${result.items.shapes.length})`);
+    result.items.shapes.forEach(item => lines.push(itemToToon(item)));
+    lines.push('');
+  }
+
+  // Text section
+  if (result.items.text.length > 0) {
+    lines.push(`## text (${result.items.text.length})`);
+    result.items.text.forEach(item => lines.push(itemToToon(item)));
+    lines.push('');
+  }
+
+  // Connectors section
+  if (result.items.connectors.length > 0) {
+    lines.push(`## connectors (${result.items.connectors.length})`);
+    result.items.connectors.forEach(item => lines.push(itemToToon(item)));
+    lines.push('');
+  }
+
+  return lines.join('\n').trim();
 }
 
 /**
@@ -757,7 +893,11 @@ export class MiroClient {
   }
 
   // Board Sync - Retrieve complete board snapshot in single request
-  async syncBoard(boardId: string, format: ItemFormat = 'minimal'): Promise<{
+  async syncBoard(
+    boardId: string,
+    format: ItemFormat = 'minimal',
+    outputFormat: OutputFormat = 'json'
+  ): Promise<string | {
     metadata: {
       board_id: string;
       board_name: string;
@@ -788,7 +928,7 @@ export class MiroClient {
 
     const itemCount = frames.length + shapes.length + stickyNotes.length + textItems.length + filteredConnectors.length;
 
-    return {
+    const result = {
       metadata: {
         board_id: board.id,
         board_name: board.name,
@@ -803,6 +943,13 @@ export class MiroClient {
         connectors: filteredConnectors,
       },
     };
+
+    // Return in requested output format
+    if (outputFormat === 'toon') {
+      return syncResultToToon(result);
+    }
+
+    return result;
   }
 
   // Verify authentication by listing boards

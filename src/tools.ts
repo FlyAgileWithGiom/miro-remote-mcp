@@ -144,6 +144,11 @@ export const TOOL_DEFINITIONS = [
           description: 'Output detail level (default: minimal)',
           enum: ['minimal', 'standard', 'full'],
         },
+        output_format: {
+          type: 'string',
+          description: 'Output format (default: json). Use toon for compact text representation (~40% additional reduction)',
+          enum: ['json', 'toon'],
+        },
       },
       required: ['board_id'],
     },
@@ -575,7 +580,7 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
         return await miroClient.createBoard(args.name, args.description);
 
       case 'sync_board':
-        return await miroClient.syncBoard(args.board_id, args.format);
+        return await miroClient.syncBoard(args.board_id, args.format, args.output_format);
 
       // Item Operations
       case 'list_items':

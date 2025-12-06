@@ -26,7 +26,15 @@
 - [ ] CAP-COMMENTS: User adds contextual comments to board items
 
 ## In Progress
-- [⏳] TECH-OUTPUT-FORMAT: Agent AI retrieves board items within context token limits (~70% reduction)
+
+### TECH-TOON-SERIALIZATION (Epic - Incremental)
+- [⏳] TECH-TOON-SYNC: Agent AI receives sync_board results in compact TOON format (~40% additional reduction)
+- [ ] TECH-TOON-READ: Agent AI receives list/search results in TOON format
+- [ ] TECH-WRITE-FILTER: Agent AI receives create/update results with configurable field filtering
+- [ ] TECH-TOON-WRITE: Agent AI receives create/update results in TOON format
+
+## Recently Completed (2025-12-06)
+- [x] TECH-OUTPUT-FORMAT: Agent AI retrieves board items within context token limits (~70% reduction) ✅ 2025-12-06
 
 ## Bug fixes (2025-12-06)
 - [x] BUG-GEOMETRY-UPDATE: Agent AI modifies item dimensions (width/height) successfully ✅ 2025-12-06
