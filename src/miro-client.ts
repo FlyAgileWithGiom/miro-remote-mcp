@@ -69,6 +69,52 @@ export interface MiroItem {
   links?: any;
 }
 
+export type ItemFormat = 'minimal' | 'standard' | 'full';
+
+/**
+ * Filter item fields based on format level
+ * - minimal: Only essential fields (id, type, data, position x/y, geometry width/height)
+ * - standard: Minimal + style and parent.id
+ * - full: Complete API response (no filtering)
+ */
+function filterItem(item: MiroItem, format: ItemFormat): Partial<MiroItem> {
+  if (format === 'full') {
+    return item;
+  }
+
+  const filtered: Partial<MiroItem> = {
+    id: item.id,
+    type: item.type,
+    data: item.data,
+  };
+
+  // Add minimal position fields (x, y only)
+  if (item.position) {
+    filtered.position = {
+      x: item.position.x,
+      y: item.position.y,
+    };
+  }
+
+  // Add minimal geometry fields (width, height only)
+  if (item.geometry) {
+    filtered.geometry = {
+      width: item.geometry.width,
+      height: item.geometry.height,
+    };
+  }
+
+  // Standard format adds style and parent.id
+  if (format === 'standard') {
+    filtered.style = item.style;
+    if (item.parent?.id) {
+      filtered.parent = { id: item.parent.id };
+    }
+  }
+
+  return filtered;
+}
+
 /**
  * Miro API Client with automatic rate limit management
  *
@@ -241,14 +287,15 @@ export class MiroClient {
   }
 
   // Item Operations
-  async listItems(boardId: string, type?: string): Promise<MiroItem[]> {
+  async listItems(boardId: string, type?: string, format: ItemFormat = 'minimal'): Promise<MiroItem[]> {
     const now = Date.now();
     const cacheKey = `${boardId}:${type || 'all'}`;
 
     // Return cached data if still valid
     const cached = this.itemCache.get(cacheKey);
     if (cached && cached.expiresAt > now) {
-      return cached.data;
+      // Apply format filter to cached data
+      return cached.data.map(item => filterItem(item, format) as MiroItem);
     }
 
     // Fetch fresh data
@@ -265,13 +312,14 @@ export class MiroClient {
       cursor = response.data.cursor;
     } while (cursor);
 
-    // Cache for configured TTL
+    // Cache for configured TTL (cache full data, filter on retrieval)
     this.itemCache.set(cacheKey, {
       data: items,
       expiresAt: now + CACHE_CONFIG.ITEM_TTL_MS,
     });
 
-    return items;
+    // Apply format filter before returning
+    return items.map(item => filterItem(item, format) as MiroItem);
   }
 
   /**
@@ -709,7 +757,7 @@ export class MiroClient {
   }
 
   // Board Sync - Retrieve complete board snapshot in single request
-  async syncBoard(boardId: string): Promise<{
+  async syncBoard(boardId: string, format: ItemFormat = 'minimal'): Promise<{
     metadata: {
       board_id: string;
       board_name: string;
@@ -728,14 +776,17 @@ export class MiroClient {
     // Note: connectors use dedicated endpoint, not /items
     const [board, frames, shapes, stickyNotes, textItems, connectors] = await Promise.all([
       this.getBoard(boardId),
-      this.listItems(boardId, 'frame'),
-      this.listItems(boardId, 'shape'),
-      this.listItems(boardId, 'sticky_note'),
-      this.listItems(boardId, 'text'),
+      this.listItems(boardId, 'frame', format),
+      this.listItems(boardId, 'shape', format),
+      this.listItems(boardId, 'sticky_note', format),
+      this.listItems(boardId, 'text', format),
       this.listConnectors(boardId),
     ]);
 
-    const itemCount = frames.length + shapes.length + stickyNotes.length + textItems.length + connectors.length;
+    // Apply format filtering to connectors (they don't use listItems)
+    const filteredConnectors = connectors.map(item => filterItem(item, format) as MiroItem);
+
+    const itemCount = frames.length + shapes.length + stickyNotes.length + textItems.length + filteredConnectors.length;
 
     return {
       metadata: {
@@ -749,7 +800,7 @@ export class MiroClient {
         shapes,
         sticky_notes: stickyNotes,
         text: textItems,
-        connectors,
+        connectors: filteredConnectors,
       },
     };
   }

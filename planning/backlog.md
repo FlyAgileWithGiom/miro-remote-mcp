@@ -26,7 +26,7 @@
 - [ ] CAP-COMMENTS: User adds contextual comments to board items
 
 ## In Progress
-(currently empty)
+- [⏳] TECH-OUTPUT-FORMAT: Agent AI retrieves board items within context token limits (~70% reduction)
 
 ## Bug fixes (2025-12-06)
 - [x] BUG-GEOMETRY-UPDATE: Agent AI modifies item dimensions (width/height) successfully ✅ 2025-12-06

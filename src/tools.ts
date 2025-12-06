@@ -139,6 +139,11 @@ export const TOOL_DEFINITIONS = [
       type: 'object',
       properties: {
         board_id: SCHEMAS.BOARD_ID,
+        format: {
+          type: 'string',
+          description: 'Output detail level (default: minimal)',
+          enum: ['minimal', 'standard', 'full'],
+        },
       },
       required: ['board_id'],
     },
@@ -156,6 +161,11 @@ export const TOOL_DEFINITIONS = [
           type: 'string',
           description: 'Optional item type filter (frame, sticky_note, shape, text)',
           enum: ['frame', 'sticky_note', 'shape', 'text'],
+        },
+        format: {
+          type: 'string',
+          description: 'Output detail level (default: minimal)',
+          enum: ['minimal', 'standard', 'full'],
         },
       },
       required: ['board_id'],
@@ -565,11 +575,11 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
         return await miroClient.createBoard(args.name, args.description);
 
       case 'sync_board':
-        return await miroClient.syncBoard(args.board_id);
+        return await miroClient.syncBoard(args.board_id, args.format);
 
       // Item Operations
       case 'list_items':
-        return await miroClient.listItems(args.board_id, args.type);
+        return await miroClient.listItems(args.board_id, args.type, args.format);
 
       case 'search_items':
         return await miroClient.searchItems(args.board_id, args.query, args.type);
