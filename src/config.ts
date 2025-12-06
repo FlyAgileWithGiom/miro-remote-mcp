@@ -9,8 +9,6 @@ export const OAUTH_CONFIG = {
 
 // Token Management
 export const TOKEN_CONFIG = {
-  // Long-lived token duration (1 year in seconds)
-  LONG_LIVED_TOKEN_SECONDS: 365 * 24 * 60 * 60,
   // Refresh token when within 5 minutes of expiration
   REFRESH_BUFFER_MINUTES: 5,
   REFRESH_BUFFER_MS: 5 * 60 * 1000,

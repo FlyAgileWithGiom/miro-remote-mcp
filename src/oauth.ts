@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { promises as fs } from 'fs';
-import path from 'path';
 import { TOKEN_CONFIG } from './config.js';
 
 interface TokenData {
@@ -80,11 +79,16 @@ export class OAuth2Manager {
         }
       );
 
+      // Use Miro's expires_in, fallback to 1h if missing
+      const expiresIn = response.data.expires_in || 3600;
+      if (!response.data.expires_in) {
+        console.error('[OAuth] Warning: expires_in missing from response, using 1h default');
+      }
       const tokenData: TokenData = {
         ...response.data,
-        // If expires_in is 0, treat as long-lived token (1 year)
-        expires_at: Date.now() + (response.data.expires_in || TOKEN_CONFIG.LONG_LIVED_TOKEN_SECONDS) * 1000,
+        expires_at: Date.now() + expiresIn * 1000,
       };
+      console.error(`[OAuth] Token exchanged, expires in ${expiresIn}s`);
 
       this.tokens = tokenData;
       await this.saveTokens(tokenData);
@@ -124,11 +128,16 @@ export class OAuth2Manager {
         }
       );
 
+      // Use Miro's expires_in, fallback to 1h if missing
+      const expiresIn = response.data.expires_in || 3600;
+      if (!response.data.expires_in) {
+        console.error('[OAuth] Warning: expires_in missing from response, using 1h default');
+      }
       const tokenData: TokenData = {
         ...response.data,
-        // If expires_in is 0, treat as long-lived token (1 year)
-        expires_at: Date.now() + (response.data.expires_in || TOKEN_CONFIG.LONG_LIVED_TOKEN_SECONDS) * 1000,
+        expires_at: Date.now() + expiresIn * 1000,
       };
+      console.error(`[OAuth] Token refreshed, expires in ${expiresIn}s`);
 
       this.tokens = tokenData;
       await this.saveTokens(tokenData);
