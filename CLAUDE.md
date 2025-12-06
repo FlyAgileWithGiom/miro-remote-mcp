@@ -29,6 +29,24 @@
 
 ## Project Learnings
 
+### 2025-12-06 - Token Refresh Never Triggering
+
+**Methodological: Validate Infrastructure Before Blaming Code, Then Vice Versa**
+Initial hypothesis was "Docker volume doesn't persist tokens". Deployment logs proved tokens.json survived deployments. When infrastructure is validated, pivot to code analysis. The bug was in the refresh logic, not in persistence. Always let evidence guide investigation direction.
+
+**Technical: Multi-Layer Token Caching Desynchronization**
+Two independent expiration trackers existed:
+- `MiroClient.tokenExpiresAt`: Forces refresh after 1h (correct)
+- `OAuth2Manager.tokens.expires_at`: Decides if Miro refresh is needed
+
+Bug: When `expires_in` was missing from Miro response, code used 1-year fallback. MiroClient would call `getValidAccessToken()` after 1h, but OAuth2Manager thought token valid for 1 year → no actual Miro refresh → 401 errors.
+
+**Technical: Miro OAuth Token Lifecycle**
+- Access tokens: 1 hour expiration
+- Refresh tokens: 60 days expiration
+- Only ONE active token per user - authenticating elsewhere invalidates previous tokens
+- Source: [Miro OAuth Docs](https://developers.miro.com/docs/getting-started-with-oauth)
+
 ### 2025-12-05 - Puppeteer SDK Bridge Spike (NO-GO)
 
 **Methodological: Auth-First Spike Testing**
