@@ -172,6 +172,11 @@ export const TOOL_DEFINITIONS = [
           description: 'Output detail level (default: minimal)',
           enum: ['minimal', 'standard', 'full'],
         },
+        output_format: {
+          type: 'string',
+          description: 'Output format (default: json). Use toon for compact text representation',
+          enum: ['json', 'toon'],
+        },
       },
       required: ['board_id'],
     },
@@ -191,6 +196,11 @@ export const TOOL_DEFINITIONS = [
           type: 'string',
           description: 'Optional item type filter',
           enum: ['frame', 'sticky_note', 'shape', 'text'],
+        },
+        output_format: {
+          type: 'string',
+          description: 'Output format (default: json). Use toon for compact text representation',
+          enum: ['json', 'toon'],
         },
       },
       required: ['board_id', 'query'],
@@ -584,10 +594,10 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
 
       // Item Operations
       case 'list_items':
-        return await miroClient.listItems(args.board_id, args.type, args.format);
+        return await miroClient.listItems(args.board_id, args.type, args.format, args.output_format);
 
       case 'search_items':
-        return await miroClient.searchItems(args.board_id, args.query, args.type);
+        return await miroClient.searchItems(args.board_id, args.query, args.type, args.output_format);
 
       case 'get_item':
         return await miroClient.getItem(args.board_id, args.item_id);

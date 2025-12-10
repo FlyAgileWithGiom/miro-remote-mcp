@@ -188,6 +188,7 @@ function itemToToon(item: MiroItem): string {
   return parts.join('|');
 }
 
+
 /**
  * Convert sync_board result to TOON format
  */
@@ -423,14 +424,19 @@ export class MiroClient {
   }
 
   // Item Operations
-  async listItems(boardId: string, type?: string, format: ItemFormat = 'minimal'): Promise<MiroItem[]> {
+  async listItems(boardId: string, type?: string, format: ItemFormat = 'minimal', outputFormat: OutputFormat = 'json'): Promise<MiroItem[] | string> {
     const now = Date.now();
     const cacheKey = `${boardId}:${type || 'all'}`;
 
     // Return cached data if still valid
     const cached = this.itemCache.get(cacheKey);
     if (cached && cached.expiresAt > now) {
-      // Apply format filter to cached data
+      // For TOON format, use full data (itemToToon needs all fields)
+      if (outputFormat === 'toon') {
+        return this.itemsToToon(cached.data);
+      }
+
+      // Apply format filter for JSON output
       return cached.data.map(item => filterItem(item, format) as MiroItem);
     }
 
@@ -454,8 +460,27 @@ export class MiroClient {
       expiresAt: now + CACHE_CONFIG.ITEM_TTL_MS,
     });
 
-    // Apply format filter before returning
+    // For TOON format, use full data (itemToToon needs all fields)
+    if (outputFormat === 'toon') {
+      return this.itemsToToon(items);
+    }
+
+    // Apply format filter for JSON output
     return items.map(item => filterItem(item, format) as MiroItem);
+  }
+
+  /**
+   * Convert item array to TOON format
+   */
+  private itemsToToon(items: MiroItem[]): string {
+    if (items.length === 0) {
+      return '# items count:0';
+    }
+
+    const lines: string[] = [];
+    lines.push(`# items count:${items.length}`);
+    items.forEach(item => lines.push(itemToToon(item)));
+    return lines.join('\n');
   }
 
   /**
@@ -481,15 +506,22 @@ export class MiroClient {
     }
   }
 
-  async searchItems(boardId: string, query: string, type?: string): Promise<MiroItem[]> {
-    const items = await this.listItems(boardId, type);
+  async searchItems(boardId: string, query: string, type?: string, outputFormat: OutputFormat = 'json'): Promise<MiroItem[] | string> {
+    // Always get items in JSON format first for filtering
+    const items = await this.listItems(boardId, type) as MiroItem[];
     const lowerQuery = query.toLowerCase();
 
-    return items.filter((item) => {
+    const filteredItems = items.filter((item) => {
       const content = item.data?.content?.toLowerCase() || '';
       const title = item.data?.title?.toLowerCase() || '';
       return content.includes(lowerQuery) || title.includes(lowerQuery);
     });
+
+    // Return TOON format if requested
+    if (outputFormat === 'toon') {
+      return this.itemsToToon(filteredItems);
+    }
+    return filteredItems;
   }
 
   async getItem(boardId: string, itemId: string): Promise<MiroItem> {
@@ -916,12 +948,12 @@ export class MiroClient {
     // Note: connectors use dedicated endpoint, not /items
     const [board, frames, shapes, stickyNotes, textItems, connectors] = await Promise.all([
       this.getBoard(boardId),
-      this.listItems(boardId, 'frame', format),
-      this.listItems(boardId, 'shape', format),
-      this.listItems(boardId, 'sticky_note', format),
-      this.listItems(boardId, 'text', format),
+      this.listItems(boardId, 'frame', format, 'json'),
+      this.listItems(boardId, 'shape', format, 'json'),
+      this.listItems(boardId, 'sticky_note', format, 'json'),
+      this.listItems(boardId, 'text', format, 'json'),
       this.listConnectors(boardId),
-    ]);
+    ]) as [MiroBoard, MiroItem[], MiroItem[], MiroItem[], MiroItem[], MiroItem[]];
 
     // Apply format filtering to connectors (they don't use listItems)
     const filteredConnectors = connectors.map(item => filterItem(item, format) as MiroItem);

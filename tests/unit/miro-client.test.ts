@@ -571,4 +571,198 @@ describe('MiroClient Item Format Filtering', () => {
       expect(result).toHaveProperty('items');
     });
   });
+
+  describe('listItems with TOON output format', () => {
+    it('should return compact TOON text format when output_format is toon', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockResolvedValue({
+        data: {
+          data: [
+            {
+              id: 'sticky1',
+              type: 'sticky_note',
+              position: { x: 100, y: 200 },
+              geometry: { width: 80, height: 100 },
+              style: { fillColor: 'yellow' },
+              data: { content: 'Hello world' },
+            },
+            {
+              id: 'shape1',
+              type: 'shape',
+              position: { x: 300, y: 400 },
+              geometry: { width: 50, height: 50 },
+              data: { shape: 'rectangle', content: 'Label' },
+            },
+          ],
+          cursor: undefined,
+        },
+        headers: {},
+      });
+
+      const result = await client.listItems(boardId, undefined, 'minimal', 'toon');
+
+      // Result should be a string in TOON format
+      expect(typeof result).toBe('string');
+
+      const lines = (result as string).split('\n');
+
+      // Check header line
+      expect(lines[0]).toBe('# items count:2');
+
+      // Check item formats
+      expect(result).toContain('sticky_note|sticky1|100,200|80x100|yellow|Hello world');
+      expect(result).toContain('shape|shape1|300,400|50x50|rectangle|Label');
+    });
+
+    it('should return empty count header when no items', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockResolvedValue({
+        data: {
+          data: [],
+          cursor: undefined,
+        },
+        headers: {},
+      });
+
+      const result = await client.listItems(boardId, undefined, 'minimal', 'toon');
+
+      expect(result).toBe('# items count:0');
+    });
+
+    it('should handle type filtering with TOON format', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockResolvedValue({
+        data: {
+          data: [
+            {
+              id: 'sticky1',
+              type: 'sticky_note',
+              position: { x: 100, y: 200 },
+              geometry: { width: 80, height: 100 },
+              style: { fillColor: 'light_yellow' },
+              data: { content: 'Test' },
+            },
+          ],
+          cursor: undefined,
+        },
+        headers: {},
+      });
+
+      const result = await client.listItems(boardId, 'sticky_note', 'minimal', 'toon');
+
+      expect(typeof result).toBe('string');
+      expect(result).toContain('# items count:1');
+      expect(result).toContain('sticky_note|sticky1|100,200|80x100|light_yellow|Test');
+    });
+
+    it('should default to JSON format when output_format is not specified', async () => {
+      const mockAxiosClient = (client as any).client;
+
+      mockAxiosClient.get.mockResolvedValue({
+        data: {
+          data: [
+            {
+              id: 'sticky1',
+              type: 'sticky_note',
+              position: { x: 100, y: 200 },
+              data: { content: 'Test' },
+            },
+          ],
+          cursor: undefined,
+        },
+        headers: {},
+      });
+
+      const result = await client.listItems(boardId);
+
+      // Result should be an array (JSON), not a string
+      expect(Array.isArray(result)).toBe(true);
+      expect((result as any)[0].id).toBe('sticky1');
+    });
+  });
+
+  describe('searchItems with TOON output format', () => {
+    it('should return filtered items in TOON format when output_format is toon', async () => {
+      const mockItems = [
+        {
+          id: 'sticky1',
+          type: 'sticky_note',
+          position: { x: 100, y: 200 },
+          geometry: { width: 80, height: 100 },
+          style: { fillColor: 'yellow' },
+          data: { content: 'Hello world' },
+        },
+        {
+          id: 'sticky2',
+          type: 'sticky_note',
+          position: { x: 150, y: 250 },
+          geometry: { width: 80, height: 100 },
+          style: { fillColor: 'pink' },
+          data: { content: 'Goodbye' },
+        },
+        {
+          id: 'sticky3',
+          type: 'sticky_note',
+          position: { x: 200, y: 300 },
+          geometry: { width: 80, height: 100 },
+          style: { fillColor: 'green' },
+          data: { content: 'Hello again' },
+        },
+      ];
+
+      vi.spyOn(client, 'listItems').mockResolvedValue(mockItems);
+
+      const result = await client.searchItems(boardId, 'hello', undefined, 'toon');
+
+      // Result should be a string in TOON format
+      expect(typeof result).toBe('string');
+
+      const lines = (result as string).split('\n');
+
+      // Check header line - should only contain items matching 'hello'
+      expect(lines[0]).toBe('# items count:2');
+
+      // Check filtered items are in TOON format
+      expect(result).toContain('sticky_note|sticky1|100,200|80x100|yellow|Hello world');
+      expect(result).toContain('sticky_note|sticky3|200,300|80x100|green|Hello again');
+      expect(result).not.toContain('Goodbye');
+    });
+
+    it('should return empty count when search has no matches', async () => {
+      const mockItems = [
+        {
+          id: 'sticky1',
+          type: 'sticky_note',
+          data: { content: 'Hello' },
+        },
+      ];
+
+      vi.spyOn(client, 'listItems').mockResolvedValue(mockItems);
+
+      const result = await client.searchItems(boardId, 'xyz', undefined, 'toon');
+
+      expect(result).toBe('# items count:0');
+    });
+
+    it('should default to JSON format when output_format is not specified', async () => {
+      const mockItems = [
+        {
+          id: 'sticky1',
+          type: 'sticky_note',
+          data: { content: 'Hello world' },
+        },
+      ];
+
+      vi.spyOn(client, 'listItems').mockResolvedValue(mockItems);
+
+      const result = await client.searchItems(boardId, 'hello');
+
+      // Result should be an array (JSON), not a string
+      expect(Array.isArray(result)).toBe(true);
+      expect((result as any)[0].id).toBe('sticky1');
+    });
+  });
 });
