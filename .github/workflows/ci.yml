@@ -113,3 +113,28 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NODE_ENV=production
+
+      # Update K8s manifest in infra-platform repo (GitOps)
+      - name: Update K8s manifest
+        if: github.ref == 'refs/heads/main'
+        env:
+          INFRA_REPO_TOKEN: ${{ secrets.INFRA_REPO_TOKEN }}
+        run: |
+          # Clone infra-platform repo
+          git clone https://x-access-token:${INFRA_REPO_TOKEN}@github.com/FlyAgileWithGiom/mcp-infra-platform.git
+          cd mcp-infra-platform
+
+          # Install kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+          # Update image tag
+          cd apps/mcp-gateway/base
+          kustomize edit set image rg.fr-par.scw.cloud/fly-agile-prod/miro-mcp=rg.fr-par.scw.cloud/fly-agile-prod/miro-mcp:sha-${{ github.sha }}
+
+          # Commit and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kustomization.yaml
+          git diff --staged --quiet || git commit -m "chore: update miro-mcp to sha-${{ github.sha }}"
+          git push
