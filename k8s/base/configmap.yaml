@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: miro-mcp-config
-  labels:
-    app.kubernetes.io/name: miro-mcp
-data:
-  NODE_ENV: "production"
-  PORT: "3000"
