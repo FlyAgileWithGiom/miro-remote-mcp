@@ -30,11 +30,14 @@
 - [ ] CAP-COMMENTS: User adds contextual comments to board items
 
 ## In Progress
+(currently empty)
 
-### FEAT-REAUTH: User can request fresh authorization URL without deleting tokens
-- [ ] FEAT-REAUTH: Agent AI provides reauthentication URL even if already authenticated
+## Recently Completed (2025-03-05)
 
-## Recently Completed (2025-12-10)
+### FEAT-REAUTH (Epic - Complete)
+- [x] FEAT-REAUTH: Agent AI provides reauthentication URL even if already authenticated ✅ 2025-03-05
+
+## Previously Completed (2025-12-10)
 
 ### TECH-TOON-SERIALIZATION (Epic - Complete)
 - [x] TECH-TOON-SYNC: Agent AI receives sync_board results in compact TOON format (~40% additional reduction) ✅ 2025-12-06
