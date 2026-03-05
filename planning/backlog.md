@@ -12,12 +12,16 @@
 - [ ] TECH3: Developer extends auth logic with full TypeScript type safety
 
 ### Medium: Feature Capabilities
+- [ ] CAP-SYNC-SOURCE: Agent AI synchronizes board from structured source file (org chart)
 - [ ] CAP-CHANGE-DETECTION: Agent AI detects board changes since last sync
 - [ ] CAP-SPATIAL-SEARCH: Agent AI finds items within geographic zone
 - [ ] CAP-STRUCTURED-INVENTORY: Agent AI understands board element hierarchy automatically
 - [ ] CAP-BOARD-TEMPLATES: User creates boards from common diagram templates
 - [ ] CAP-ITEM-SEARCH: User finds board elements by content or properties
 - [ ] CAP-BOARD-EXPORT: User captures complete board state for archival
+
+### Medium: Protocol Enhancements
+- [ ] PROTO1: Claude sees tool availability change instantly when OAuth status changes (via `list_changed` notification on token refresh failure, re-authentication, scope changes) **[S]** - requires MCP v2.1.0+
 
 ### Low: Future Enhancements
 - [ ] EPIC-SDK-BRIDGE: Agent AI accesses Web SDK features via bridge layer
@@ -26,7 +30,9 @@
 - [ ] CAP-COMMENTS: User adds contextual comments to board items
 
 ## In Progress
-(currently empty)
+
+### FEAT-REAUTH: User can request fresh authorization URL without deleting tokens
+- [ ] FEAT-REAUTH: Agent AI provides reauthentication URL even if already authenticated
 
 ## Recently Completed (2025-12-10)
 

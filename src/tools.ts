@@ -102,6 +102,15 @@ export const TOOL_DEFINITIONS = [
       required: [],
     },
   },
+  {
+    name: 'get_reauth_url',
+    description: 'Get reauthentication URL for Miro. Provides authorization URL even if already authenticated. Use this to switch Miro accounts without deleting tokens.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
 
   // Board Operations
   {
@@ -606,6 +615,16 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
         return {
           status: 'not_authorized',
           authorize_url: `${baseUri}/oauth/authorize`,
+        };
+      }
+
+      case 'get_reauth_url': {
+        // Return authorization URL regardless of current auth state
+        // Use case: switch Miro accounts without deleting tokens
+        const baseUri = process.env.BASE_URI || 'http://localhost:3000';
+        return {
+          authorize_url: `${baseUri}/oauth/authorize`,
+          message: 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
         };
       }
 

@@ -238,6 +238,17 @@ class MiroFunctionHandler {
       if (method === 'tools/call') {
         const toolName = (params as { name?: string })?.name;
 
+        // get_reauth_url: Always return authorization URL, regardless of auth state
+        if (toolName === 'get_reauth_url') {
+          const authUrl = `${BASE_URI}/oauth/authorize`;
+          return apiResponse(200, jsonRpcSuccess(id, {
+            content: [{ type: 'text', text: JSON.stringify({
+              authorize_url: authUrl,
+              message: 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
+            }, null, 2) }],
+          }));
+        }
+
         // get_auth_status can run without authentication
         if (toolName === 'get_auth_status') {
           const tokensExist = existsSync(TOKEN_FILE);

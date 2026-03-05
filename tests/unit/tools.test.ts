@@ -64,6 +64,19 @@ describe('tools', () => {
       expect(tool?.inputSchema.required).toEqual([]);
       expect(tool?.inputSchema.properties).toEqual({});
     });
+
+    it('get_reauth_url is in tool definitions', () => {
+      const toolNames = TOOL_DEFINITIONS.map((t) => t.name);
+      expect(toolNames).toContain('get_reauth_url');
+    });
+
+    it('get_reauth_url has correct schema', () => {
+      const tool = TOOL_DEFINITIONS.find((t) => t.name === 'get_reauth_url');
+      expect(tool).toBeDefined();
+      expect(tool?.description).toContain('reauthentication');
+      expect(tool?.inputSchema.required).toEqual([]);
+      expect(tool?.inputSchema.properties).toEqual({});
+    });
   });
 
   describe('handleToolCall - Board Operations', () => {
@@ -281,6 +294,55 @@ describe('tools', () => {
       await handleToolCall('get_auth_status', {}, mockMiroClientWithOAuth);
 
       // Verify no Miro API calls were made
+      expect(mockMiroClient.listBoards).not.toHaveBeenCalled();
+      expect(mockMiroClient.getBoard).not.toHaveBeenCalled();
+      expect(mockMiroClient.verifyAuth).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleToolCall - get_reauth_url', () => {
+    it('returns authorize_url regardless of auth state', async () => {
+      const result = await handleToolCall('get_reauth_url', {}, mockMiroClient);
+
+      expect(result).toHaveProperty('authorize_url');
+      expect(result.authorize_url).toContain('/oauth/authorize');
+      expect(result).toHaveProperty('message');
+    });
+
+    it('uses custom BASE_URI when set', async () => {
+      const originalBaseUri = process.env.BASE_URI;
+      process.env.BASE_URI = 'https://custom.example.com';
+
+      const result = await handleToolCall('get_reauth_url', {}, mockMiroClient);
+
+      expect(result.authorize_url).toEqual('https://custom.example.com/oauth/authorize');
+
+      process.env.BASE_URI = originalBaseUri;
+    });
+
+    it('uses default BASE_URI when env var not set', async () => {
+      const originalBaseUri = process.env.BASE_URI;
+      delete process.env.BASE_URI;
+
+      const result = await handleToolCall('get_reauth_url', {}, mockMiroClient);
+
+      expect(result.authorize_url).toEqual('http://localhost:3000/oauth/authorize');
+
+      if (originalBaseUri) {
+        process.env.BASE_URI = originalBaseUri;
+      }
+    });
+
+    it('includes helpful message for switching accounts', async () => {
+      const result = await handleToolCall('get_reauth_url', {}, mockMiroClient);
+
+      expect(result.message).toContain('authorize');
+      expect(result.message).toContain('tokens will be replaced');
+    });
+
+    it('does not call Miro API', async () => {
+      await handleToolCall('get_reauth_url', {}, mockMiroClient);
+
       expect(mockMiroClient.listBoards).not.toHaveBeenCalled();
       expect(mockMiroClient.getBoard).not.toHaveBeenCalled();
       expect(mockMiroClient.verifyAuth).not.toHaveBeenCalled();
