@@ -237,14 +237,19 @@ class MiroFunctionHandler {
 
       if (method === 'tools/call') {
         const toolName = (params as { name?: string })?.name;
+        const toolArgs = (params as { arguments?: Record<string, unknown> })?.arguments || {};
 
         // get_reauth_url: Always return authorization URL, regardless of auth state
         if (toolName === 'get_reauth_url') {
-          const authUrl = `${BASE_URI}/oauth/authorize`;
+          const teamId = (toolArgs as { team_id?: string })?.team_id;
+          const teamParam = teamId ? `?team_id=${encodeURIComponent(teamId)}` : '';
+          const authUrl = `${BASE_URI}/oauth/authorize${teamParam}`;
           return apiResponse(200, jsonRpcSuccess(id, {
             content: [{ type: 'text', text: JSON.stringify({
               authorize_url: authUrl,
-              message: 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
+              message: teamId
+                ? `Visit this URL to authorize with Miro team "${teamId}". This establishes a separate OAuth session for that team context.`
+                : 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
             }, null, 2) }],
           }));
         }
@@ -299,7 +304,6 @@ class MiroFunctionHandler {
             });
           }
         }
-        const toolArgs = (params as { arguments?: Record<string, unknown> })?.arguments || {};
 
         if (!toolName) {
           return apiResponse(200, jsonRpcError(id, -32602, 'Missing tool name'));
@@ -353,6 +357,13 @@ class MiroFunctionHandler {
         client_id: clientId,
         redirect_uri: OAUTH_REDIRECT_URI,
       });
+
+      // Support team_id parameter for multi-team access
+      // When team_id is provided, user authorizes specifically for that team context
+      const teamId = event.queryStringParameters?.team_id;
+      if (teamId) {
+        params.append('team_id', teamId);
+      }
 
       const authUrl = `https://miro.com/oauth/authorize?${params.toString()}`;
 

@@ -75,7 +75,9 @@ describe('tools', () => {
       expect(tool).toBeDefined();
       expect(tool?.description).toContain('reauthentication');
       expect(tool?.inputSchema.required).toEqual([]);
-      expect(tool?.inputSchema.properties).toEqual({});
+      // Schema now includes optional team_id parameter for multi-team access
+      expect(tool?.inputSchema.properties).toHaveProperty('team_id');
+      expect((tool?.inputSchema.properties as Record<string, any>).team_id?.type).toBe('string');
     });
   });
 

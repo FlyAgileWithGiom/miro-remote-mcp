@@ -34,6 +34,12 @@
 
 ## Recently Completed (2025-03-05)
 
+### FEAT-MULTI-TEAM (Epic - Complete)
+- [x] FEAT-MULTI-TEAM: User accesses multiple Miro teams/workspaces via team-scoped authorization (Option A) ✅ 2025-03-05
+  - Implemented: `get_reauth_url(team_id)` parameter for team-specific authorization
+  - Architecture: Single token per session, explicit team switching
+  - Status: Phase 1 complete, Phase 2 (multi-token storage) planned for future
+
 ### FEAT-REAUTH (Epic - Complete)
 - [x] FEAT-REAUTH: Agent AI provides reauthentication URL even if already authenticated ✅ 2025-03-05
 

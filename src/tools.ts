@@ -104,10 +104,15 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'get_reauth_url',
-    description: 'Get reauthentication URL for Miro. Provides authorization URL even if already authenticated. Use this to switch Miro accounts without deleting tokens.',
+    description: 'Get reauthentication URL for Miro. Provides authorization URL even if already authenticated. Use this to switch accounts or authorize for a different team.',
     inputSchema: {
       type: 'object',
-      properties: {},
+      properties: {
+        team_id: {
+          type: 'string',
+          description: 'Optional Miro team ID. When provided, user authorizes specifically for that team context. Use for multi-team access without switching accounts.',
+        },
+      },
       required: [],
     },
   },
@@ -620,11 +625,14 @@ export async function handleToolCall(name: string, args: any, miroClient: MiroCl
 
       case 'get_reauth_url': {
         // Return authorization URL regardless of current auth state
-        // Use case: switch Miro accounts without deleting tokens
+        // Use case: switch Miro accounts without deleting tokens, or authorize for a specific team
         const baseUri = process.env.BASE_URI || 'http://localhost:3000';
+        const teamId = args.team_id ? `?team_id=${encodeURIComponent(args.team_id)}` : '';
         return {
-          authorize_url: `${baseUri}/oauth/authorize`,
-          message: 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
+          authorize_url: `${baseUri}/oauth/authorize${teamId}`,
+          message: args.team_id
+            ? `Visit this URL to authorize with Miro team "${args.team_id}". This establishes a separate OAuth session for that team context.`
+            : 'Visit this URL to authorize with Miro. Your existing tokens will be replaced with new ones.',
         };
       }
 

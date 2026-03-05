@@ -43,6 +43,10 @@ export class OAuth2Manager {
 
   /**
    * Generate authorization URL for OAuth2 flow
+   *
+   * @param teamId - Optional Miro team ID to restrict authorization to that team context.
+   *                 When provided, users authorize specifically for that team.
+   *                 Useful for multi-team workflows where each team has separate OAuth session.
    */
   getAuthorizationUrl(teamId?: string): string {
     const params = new URLSearchParams({
